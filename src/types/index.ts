@@ -1,27 +1,11 @@
-export type Category =
-  | "Necklaces"
-  | "Chokers"
-  | "Earrings"
-  | "Chains"
-  | "Harams"
-  | "Bridal"
-  | "Anti-Tarnish"
-  | "Diamond Look"
-  | "Accessories";
+/** Category name — free-form; the canonical list lives in the DB (GET /api/categories). */
+export type Category = string;
 
-export type Material =
-  | "18K Gold Plated"
-  | "92.5 Silver"
-  | "Anti-Tarnish Alloy"
-  | "Kundan"
-  | "American Diamond"
-  | "Pearl";
+/** Material name — free-form; the canonical list lives in the DB (GET /api/materials). */
+export type Material = string;
 
-export type CollectionName =
-  | "Heritage"
-  | "Modern Muse"
-  | "Muhurtham Bridal"
-  | "Everyday Luxe";
+/** Collection name — free-form; the canonical list lives in the DB (GET /api/collections). */
+export type CollectionName = string;
 
 export interface Product {
   id: string;
@@ -75,6 +59,32 @@ export type SortOption =
 // Shapes returned by the backend API (see backend/src/types.ts)
 // ---------------------------------------------------------------------------
 
+export interface CategoryInfo {
+  id: string;
+  name: string;
+  image: string;
+  blurb: string;
+  sortOrder: number;
+  productCount: number;
+}
+
+export interface CollectionInfo {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  image: string;
+  sortOrder: number;
+  productCount: number;
+}
+
+export interface MaterialInfo {
+  id: string;
+  name: string;
+  sortOrder: number;
+  productCount: number;
+}
+
 export type Role = "customer" | "admin";
 
 export interface SessionUser {
@@ -122,6 +132,10 @@ export interface SerializedOrder {
   customer: OrderCustomer;
   items: OrderItem[];
   subtotal: number;
+  /** GST rate (%) broken out of the GST-inclusive prices. */
+  gstRate: number;
+  /** Tax portion already included in `subtotal` (not added on top). */
+  gstAmount: number;
   shippingFee: number;
   total: number;
   status: OrderStatus;
@@ -139,4 +153,30 @@ export interface SerializedUser {
   blocked: boolean;
   createdAt: string;
   orderCount?: number;
+}
+
+/** Self-service profile data returned alongside the session by GET /api/auth/me. */
+export interface AccountProfile {
+  phone?: string;
+  address?: Address;
+  /** Wishlisted product slugs synced server-side (empty/absent when unset). */
+  wishlist?: string[];
+  /** Cart items synced server-side (empty/absent when unset). */
+  cart?: CartItem[];
+}
+
+export interface SerializedReview {
+  id: string;
+  productId: string;
+  userId: string;
+  name: string;
+  rating: number;
+  title?: string;
+  body: string;
+  /** True when the reviewer has an order containing this product. */
+  verified: boolean;
+  createdAt: string;
+  /** Present only on admin listings. */
+  productSlug?: string;
+  productName?: string;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowDown,
@@ -11,9 +11,10 @@ import {
   X,
 } from "lucide-react";
 import type { Product } from "@/types";
-import { CATEGORIES, COLLECTIONS, MATERIALS } from "@/data/site";
 import { cn, slugify } from "@/lib/utils";
+import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/admin/toaster";
 import { apiFetch } from "@/components/admin/use-api";
 
 const inputClass =
@@ -43,9 +44,12 @@ function initialState(initial?: Product): FormState {
   return {
     name: initial?.name ?? "",
     slug: initial?.slug ?? "",
-    category: initial?.category ?? CATEGORIES[0].name,
-    collection: initial?.collection ?? COLLECTIONS[0].name,
-    material: initial?.material ?? MATERIALS[0],
+    // Category/collection/material lists load from the API via the store —
+    // default to the first entry once they arrive (see the effects in
+    // ProductForm).
+    category: initial?.category ?? "",
+    collection: initial?.collection ?? "",
+    material: initial?.material ?? "",
     price: initial ? String(initial.price) : "",
     compareAtPrice: initial?.compareAtPrice ? String(initial.compareAtPrice) : "",
     shortDescription: initial?.shortDescription ?? "",
@@ -68,6 +72,7 @@ export function ProductForm({
   initial?: Product;
 }) {
   const router = useRouter();
+  const { categories, collections, materials, taxonomyLoaded } = useStore();
   const [form, setForm] = useState<FormState>(() => initialState(initial));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -80,6 +85,29 @@ export function ProductForm({
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
+
+  // The taxonomy lists arrive from the API after mount — once they do, give a
+  // fresh form the first entry as its default (never overriding a choice or an
+  // existing product's value).
+  useEffect(() => {
+    if (categories.length > 0) {
+      setForm((f) => (f.category ? f : { ...f, category: categories[0].name }));
+    }
+  }, [categories]);
+
+  useEffect(() => {
+    if (collections.length > 0) {
+      setForm((f) =>
+        f.collection ? f : { ...f, collection: collections[0].name },
+      );
+    }
+  }, [collections]);
+
+  useEffect(() => {
+    if (materials.length > 0) {
+      setForm((f) => (f.material ? f : { ...f, material: materials[0].name }));
+    }
+  }, [materials]);
 
   /* ——— Images ——— */
 
@@ -153,6 +181,24 @@ export function ProductForm({
   function validate(): Record<string, string> {
     const e: Record<string, string> = {};
     if (form.name.trim().length < 2) e.name = "Name needs at least 2 characters.";
+    if (!form.category) {
+      e.category =
+        taxonomyLoaded && categories.length === 0
+          ? "No categories yet — create one under Categories first."
+          : "Choose a category.";
+    }
+    if (!form.collection) {
+      e.collection =
+        taxonomyLoaded && collections.length === 0
+          ? "No collections yet — create one under Collections first."
+          : "Choose a collection.";
+    }
+    if (!form.material) {
+      e.material =
+        taxonomyLoaded && materials.length === 0
+          ? "No materials yet — create one under Materials first."
+          : "Choose a material.";
+    }
     // Validate the rounded integers the payload actually sends — "0.4"
     // rounds to 0, which must fail here rather than at the backend.
     const price = Math.round(Number(form.price));
@@ -225,17 +271,20 @@ export function ProductForm({
           method: "POST",
           body: JSON.stringify(payload),
         });
+        toast.success("Product created.");
       } else {
         await apiFetch(`/api/products/${initial!.slug}`, {
           method: "PATCH",
           body: JSON.stringify(payload),
         });
+        toast.success("Product updated.");
       }
       router.push("/admin/products");
     } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : "Could not save the product.",
-      );
+      const message =
+        err instanceof Error ? err.message : "Could not save the product.";
+      setSubmitError(message);
+      toast.error(message);
       setSaving(false);
     }
   }
@@ -297,14 +346,30 @@ export function ProductForm({
               id="pf-category"
               value={form.category}
               onChange={(e) => set("category", e.target.value)}
+              disabled={categories.length === 0}
               className={cn(inputClass, "cursor-pointer")}
             >
-              {CATEGORIES.map((c) => (
-                <option key={c.name} value={c.name}>
-                  {c.name}
+              {categories.length === 0 ? (
+                <option value="">
+                  {taxonomyLoaded ? "No categories yet" : "Loading categories…"}
                 </option>
-              ))}
+              ) : (
+                <>
+                  {form.category !== "" &&
+                    !categories.some((c) => c.name === form.category) && (
+                      <option value={form.category}>
+                        {form.category} (missing)
+                      </option>
+                    )}
+                  {categories.map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </>
+              )}
             </select>
+            {fieldError("category")}
           </div>
 
           <div>
@@ -315,14 +380,30 @@ export function ProductForm({
               id="pf-collection"
               value={form.collection}
               onChange={(e) => set("collection", e.target.value)}
+              disabled={collections.length === 0}
               className={cn(inputClass, "cursor-pointer")}
             >
-              {COLLECTIONS.map((c) => (
-                <option key={c.name} value={c.name}>
-                  {c.name}
+              {collections.length === 0 ? (
+                <option value="">
+                  {taxonomyLoaded ? "No collections yet" : "Loading collections…"}
                 </option>
-              ))}
+              ) : (
+                <>
+                  {form.collection !== "" &&
+                    !collections.some((c) => c.name === form.collection) && (
+                      <option value={form.collection}>
+                        {form.collection} (missing)
+                      </option>
+                    )}
+                  {collections.map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </>
+              )}
             </select>
+            {fieldError("collection")}
           </div>
 
           <div>
@@ -333,14 +414,30 @@ export function ProductForm({
               id="pf-material"
               value={form.material}
               onChange={(e) => set("material", e.target.value)}
+              disabled={materials.length === 0}
               className={cn(inputClass, "cursor-pointer")}
             >
-              {MATERIALS.map((m) => (
-                <option key={m} value={m}>
-                  {m}
+              {materials.length === 0 ? (
+                <option value="">
+                  {taxonomyLoaded ? "No materials yet" : "Loading materials…"}
                 </option>
-              ))}
+              ) : (
+                <>
+                  {form.material !== "" &&
+                    !materials.some((m) => m.name === form.material) && (
+                      <option value={form.material}>
+                        {form.material} (missing)
+                      </option>
+                    )}
+                  {materials.map((m) => (
+                    <option key={m.name} value={m.name}>
+                      {m.name}
+                    </option>
+                  ))}
+                </>
+              )}
             </select>
+            {fieldError("material")}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

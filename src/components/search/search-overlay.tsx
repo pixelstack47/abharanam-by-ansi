@@ -5,14 +5,20 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Clock, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CATEGORIES, POPULAR_SEARCHES } from "@/data/site";
+import { POPULAR_SEARCHES } from "@/data/site";
 import { useStore } from "@/lib/store";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { formatINR } from "@/lib/utils";
 
 export function SearchOverlay() {
-  const { searchOpen, setSearchOpen, recentSearches, addRecentSearch, products } =
-    useStore();
+  const {
+    searchOpen,
+    setSearchOpen,
+    recentSearches,
+    addRecentSearch,
+    products,
+    categories,
+  } = useStore();
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const trapRef = useFocusTrap<HTMLDivElement>(searchOpen);
@@ -147,27 +153,29 @@ export function SearchOverlay() {
                   </div>
                 </div>
 
-                <div>
-                  <p className="text-[11px] uppercase tracking-luxe text-stone">
-                    Browse Categories
-                  </p>
-                  <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3">
-                    {CATEGORIES.slice(0, 6).map((c) => (
-                      <Link
-                        key={c.name}
-                        href={`/shop?category=${encodeURIComponent(c.name)}`}
-                        onClick={() => commitSearch(c.name)}
-                        className="group flex items-center justify-between border-b border-line py-3 font-serif text-lg transition-colors hover:text-gold-dark"
-                      >
-                        {c.name}
-                        <ArrowUpRight
-                          size={16}
-                          className="text-sand transition-all group-hover:translate-x-0.5 group-hover:text-gold"
-                        />
-                      </Link>
-                    ))}
+                {categories.length > 0 && (
+                  <div>
+                    <p className="text-[11px] uppercase tracking-luxe text-stone">
+                      Browse Categories
+                    </p>
+                    <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3">
+                      {categories.slice(0, 6).map((c) => (
+                        <Link
+                          key={c.name}
+                          href={`/shop?category=${encodeURIComponent(c.name)}`}
+                          onClick={() => commitSearch(c.name)}
+                          className="group flex items-center justify-between border-b border-line py-3 font-serif text-lg transition-colors hover:text-gold-dark"
+                        >
+                          {c.name}
+                          <ArrowUpRight
+                            size={16}
+                            className="text-sand transition-all group-hover:translate-x-0.5 group-hover:text-gold"
+                          />
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </motion.div>
             ) : (
               <div className="mt-8">

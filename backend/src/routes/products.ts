@@ -5,10 +5,12 @@
 //   PATCH  /:slug       admin partial update                     -> { product }
 //   DELETE /:slug       admin delete                             -> { ok: true }
 import { Router } from "express";
+import { Category } from "../models/Category.ts";
+import { Collection } from "../models/Collection.ts";
+import { Material } from "../models/Material.ts";
 import { Product } from "../models/Product.ts";
 import { requireAdmin } from "../lib/auth.ts";
 import { toProduct } from "../serializers.ts";
-import { CATEGORIES, COLLECTIONS, MATERIALS } from "../types.ts";
 import { wrap } from "../lib/wrap.ts";
 
 const router = Router();
@@ -86,15 +88,15 @@ function parseProductBody(
   const data: Record<string, unknown> = {};
   const unset: string[] = [];
 
-  const strings: Array<
-    [key: string, target: string, minLen: number, allowed?: readonly string[]]
-  > = [
+  const strings: Array<[key: string, target: string, minLen: number]> = [
     ["name", "name", 2],
-    ["category", "category", 1, CATEGORIES],
-    ["collection", "collectionName", 1, COLLECTIONS],
-    ["material", "material", 1, MATERIALS],
+    // category/collection/material existence is checked against the DB by
+    // the POST and PATCH handlers (see unknownTaxonomy).
+    ["category", "category", 1],
+    ["collection", "collectionName", 1],
+    ["material", "material", 1],
   ];
-  for (const [key, target, minLen, allowed] of strings) {
+  for (const [key, target, minLen] of strings) {
     const v = body[key];
     if (v === undefined) {
       if (!partial) return { ok: false, error: `Missing required field: ${key}.` };
@@ -103,14 +105,7 @@ function parseProductBody(
     if (typeof v !== "string" || v.trim().length < minLen) {
       return { ok: false, error: `Invalid value for ${key}.` };
     }
-    const value = v.trim();
-    if (allowed && !allowed.includes(value)) {
-      return {
-        ok: false,
-        error: `Unknown ${key}. Allowed values: ${allowed.join(", ")}.`,
-      };
-    }
-    data[target] = value;
+    data[target] = v.trim();
   }
 
   if (body.price === undefined) {
@@ -204,6 +199,34 @@ function parseProductBody(
   return { ok: true, data, unset };
 }
 
+/**
+ * Category/collection/material values must exist in the DB (they are managed
+ * from the admin dashboard). Returns the 400 error message, or null when valid.
+ */
+async function unknownTaxonomy(
+  data: Record<string, unknown>,
+): Promise<string | null> {
+  if (
+    data.category !== undefined &&
+    !(await Category.exists({ name: String(data.category) }))
+  ) {
+    return "Unknown category. Manage categories in the admin dashboard.";
+  }
+  if (
+    data.collectionName !== undefined &&
+    !(await Collection.exists({ name: String(data.collectionName) }))
+  ) {
+    return "Unknown collection. Manage collections in the admin dashboard.";
+  }
+  if (
+    data.material !== undefined &&
+    !(await Material.exists({ name: String(data.material) }))
+  ) {
+    return "Unknown material. Manage materials in the admin dashboard.";
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // routes
 // ---------------------------------------------------------------------------
@@ -267,6 +290,9 @@ router.post(
     if (!parsed.ok) return res.status(400).json({ error: parsed.error });
     const data = parsed.data;
 
+    const taxonomyError = await unknownTaxonomy(data);
+    if (taxonomyError) return res.status(400).json({ error: taxonomyError });
+
     const body = (req.body ?? {}) as Record<string, unknown>;
     if (body.slug !== undefined) {
       if (typeof body.slug !== "string" || !slugify(body.slug)) {
@@ -324,6 +350,9 @@ router.patch(
     const parsed = parseProductBody(req.body, true);
     if (!parsed.ok) return res.status(400).json({ error: parsed.error });
     const { data, unset } = parsed;
+
+    const taxonomyError = await unknownTaxonomy(data);
+    if (taxonomyError) return res.status(400).json({ error: taxonomyError });
 
     const body = (req.body ?? {}) as Record<string, unknown>;
     if (body.slug !== undefined) {

@@ -4,8 +4,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
-import { CATEGORIES, COLLECTIONS, MATERIALS, PRICE_RANGES } from "@/data/site";
+import { PRICE_RANGES } from "@/data/site";
 import type { Product, SortOption } from "@/types";
+import { useStore } from "@/lib/store";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { cn } from "@/lib/utils";
 import { ProductCard } from "@/components/products/product-card";
@@ -27,6 +28,8 @@ export function ShopClient({ products }: { products: Product[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  // DB-managed taxonomy — empty arrays until the store's fetch resolves.
+  const { categories, collections, materials } = useStore();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const filterTrapRef = useFocusTrap<HTMLDivElement>(mobileFiltersOpen);
@@ -119,18 +122,20 @@ export function ShopClient({ products }: { products: Product[] }) {
 
   const filterPanel = (
     <div className="space-y-8">
-      <FilterGroup title="Category">
-        {CATEGORIES.map((c) => (
-          <FilterCheckbox
-            key={c.name}
-            label={c.name}
-            checked={selected.categories.includes(c.name)}
-            onChange={() =>
-              setMulti("category", toggleValue(selected.categories, c.name))
-            }
-          />
-        ))}
-      </FilterGroup>
+      {categories.length > 0 && (
+        <FilterGroup title="Category">
+          {categories.map((c) => (
+            <FilterCheckbox
+              key={c.name}
+              label={c.name}
+              checked={selected.categories.includes(c.name)}
+              onChange={() =>
+                setMulti("category", toggleValue(selected.categories, c.name))
+              }
+            />
+          ))}
+        </FilterGroup>
+      )}
 
       <FilterGroup title="Price">
         {PRICE_RANGES.map((range, i) => (
@@ -148,29 +153,35 @@ export function ShopClient({ products }: { products: Product[] }) {
         ))}
       </FilterGroup>
 
-      <FilterGroup title="Material">
-        {MATERIALS.map((m) => (
-          <FilterCheckbox
-            key={m}
-            label={m}
-            checked={selected.materials.includes(m)}
-            onChange={() => setMulti("material", toggleValue(selected.materials, m))}
-          />
-        ))}
-      </FilterGroup>
+      {materials.length > 0 && (
+        <FilterGroup title="Material">
+          {materials.map((m) => (
+            <FilterCheckbox
+              key={m.name}
+              label={m.name}
+              checked={selected.materials.includes(m.name)}
+              onChange={() =>
+                setMulti("material", toggleValue(selected.materials, m.name))
+              }
+            />
+          ))}
+        </FilterGroup>
+      )}
 
-      <FilterGroup title="Collection">
-        {COLLECTIONS.map((c) => (
-          <FilterCheckbox
-            key={c.name}
-            label={c.name}
-            checked={selected.collections.includes(c.name)}
-            onChange={() =>
-              setMulti("collection", toggleValue(selected.collections, c.name))
-            }
-          />
-        ))}
-      </FilterGroup>
+      {collections.length > 0 && (
+        <FilterGroup title="Collection">
+          {collections.map((c) => (
+            <FilterCheckbox
+              key={c.name}
+              label={c.name}
+              checked={selected.collections.includes(c.name)}
+              onChange={() =>
+                setMulti("collection", toggleValue(selected.collections, c.name))
+              }
+            />
+          ))}
+        </FilterGroup>
+      )}
 
       <FilterGroup title="Availability">
         <FilterCheckbox

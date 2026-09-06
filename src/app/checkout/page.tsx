@@ -130,6 +130,7 @@ export default function CheckoutPage() {
     removeFromCart,
     clearCart,
     user,
+    profile,
   } = useStore();
 
   const [form, setForm] = useState<CheckoutForm>(EMPTY_FORM);
@@ -138,8 +139,29 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [placed, setPlaced] = useState(false);
+  // GST rate comes from the backend (env-configurable) so the included-tax
+  // breakout matches the server's math exactly; null until (unless) it loads.
+  const [gstRate, setGstRate] = useState<number | null>(null);
 
-  // Prefill contact details for signed-in customers without clobbering typing.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/config")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((cfg: { gstRatePercent?: number } | null) => {
+        if (!cancelled && typeof cfg?.gstRatePercent === "number") {
+          setGstRate(cfg.gstRatePercent);
+        }
+      })
+      .catch(() => {
+        /* keep the plain "Prices include GST." note */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Prefill contact details and the saved address for signed-in customers
+  // without clobbering anything already typed.
   useEffect(() => {
     if (!user) return;
     /* eslint-disable-next-line react-hooks/set-state-in-effect */
@@ -147,8 +169,14 @@ export default function CheckoutPage() {
       ...f,
       name: f.name || user.name,
       email: f.email || user.email,
+      phone: f.phone || profile?.phone || "",
+      line1: f.line1 || profile?.address?.line1 || "",
+      line2: f.line2 || profile?.address?.line2 || "",
+      city: f.city || profile?.address?.city || "",
+      state: f.state || profile?.address?.state || "",
+      pincode: f.pincode || profile?.address?.pincode || "",
     }));
-  }, [user]);
+  }, [user, profile]);
 
   const errors = useMemo(() => validate(form), [form]);
   const showError = (field: keyof CheckoutForm) =>
@@ -157,6 +185,11 @@ export default function CheckoutPage() {
   const shippingFee =
     cartSubtotal >= FREE_SHIPPING_THRESHOLD || cart.length === 0 ? 0 : SHIPPING_FEE;
   const total = cartSubtotal + shippingFee;
+  // Same inclusive-GST formula the backend applies when the order is created.
+  const gstAmount =
+    gstRate && gstRate > 0
+      ? Math.round((cartSubtotal * gstRate) / (100 + gstRate))
+      : 0;
 
   const set = (field: keyof CheckoutForm) => (value: string) =>
     setForm((f) => ({ ...f, [field]: value }));
@@ -479,6 +512,12 @@ export default function CheckoutPage() {
               <dt className="text-stone">Subtotal</dt>
               <dd className="font-medium">{formatINR(cartSubtotal)}</dd>
             </div>
+            {gstAmount > 0 && (
+              <div className="flex items-center justify-between text-stone/90">
+                <dt>Includes GST ({gstRate}%)</dt>
+                <dd>{formatINR(gstAmount)}</dd>
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <dt className="text-stone">Shipping</dt>
               <dd
@@ -497,6 +536,7 @@ export default function CheckoutPage() {
               <dt className="text-xs uppercase tracking-luxe-sm text-stone">Total</dt>
               <dd className="font-serif text-3xl">{formatINR(total)}</dd>
             </div>
+            <p className="text-xs text-stone/80">Prices include GST.</p>
           </dl>
 
           {serverError && (

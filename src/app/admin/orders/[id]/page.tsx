@@ -174,6 +174,14 @@ export default function AdminOrderDetailPage({
               <dt className="text-stone">Subtotal</dt>
               <dd className="tabular-nums">{formatINR(order.subtotal)}</dd>
             </div>
+            {order.gstAmount > 0 && (
+              <div className="flex justify-between text-xs">
+                <dt className="text-stone">Includes GST ({order.gstRate}%)</dt>
+                <dd className="tabular-nums text-stone">
+                  {formatINR(order.gstAmount)}
+                </dd>
+              </div>
+            )}
             <div className="flex justify-between">
               <dt className="text-stone">Shipping</dt>
               <dd className="tabular-nums">

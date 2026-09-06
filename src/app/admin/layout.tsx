@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import type { SessionUser } from "@/types";
 import { AdminUserProvider } from "@/components/admin/admin-context";
 import { AdminSidebar } from "@/components/admin/sidebar";
+import { Toaster } from "@/components/admin/toaster";
 
 export default function AdminLayout({
   children,
@@ -67,6 +68,7 @@ export default function AdminLayout({
             {children}
           </main>
         </div>
+        <Toaster />
       </div>
     </AdminUserProvider>
   );

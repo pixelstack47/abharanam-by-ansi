@@ -1,26 +1,130 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* ——— Abharanam colour system ———
+     Drawn from the badge logo: oxblood maroon ground, antique gold
+     detailing, warm cream type. Maroon carries the brand surfaces
+     (footer, bridal, accents); cream/ivory carries the reading surface. */
+  --color-maroon: #6b1220;
+  --color-maroon-deep: #490c16;
+  --color-maroon-light: #8a1c2e;
+  /* maroon-soft is a pale tint for hover washes and quiet section grounds. */
+  --color-maroon-soft: #f7ecea;
+  --color-ivory: #faf5ef;
+  --color-cream: #fdfaf6;
+  --color-champagne: #ecdcc0;
+  --color-sand: #d8c4a4;
+  --color-gold: #b0862f;
+  --color-gold-light: #d8ad57;
+  /* gold-dark and stone are tuned to clear WCAG AA (4.5:1) on ivory, both as
+     text and as a background carrying ivory text. */
+  --color-gold-dark: #8a6626;
+  --color-ink: #2a1116;
+  --color-espresso: #4a2229;
+  --color-stone: #7a6259;
+  --color-line: #e8dcd2;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* ——— Typography ——— */
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* ——— Motion ——— */
+  --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-float: float 7s ease-in-out infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-ivory);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-champagne);
+  color: var(--color-maroon-deep);
+}
+
+/* Thin elegant scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-sand);
+  border-radius: 999px;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+/* Editorial letter-spacing helpers */
+@utility tracking-luxe {
+  letter-spacing: 0.22em;
+}
+@utility tracking-luxe-sm {
+  letter-spacing: 0.14em;
+}
+
+/* Gold hairline divider */
+@utility hairline {
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-sand),
+    transparent
+  );
+  height: 1px;
+}
+
+/* Hide the custom cursor target on touch devices */
+@media (pointer: coarse) {
+  .luxe-cursor {
+    display: none !important;
+  }
 }

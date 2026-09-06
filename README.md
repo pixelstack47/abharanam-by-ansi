@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Abharanam by Ansi — Jewels That Celebrate You
 
-## Getting Started
+A premium jewellery e-commerce frontend built with Next.js. The design system is drawn
+from the Abharanam badge logo — oxblood maroon, antique gold and warm cream — in
+editorial layouts with cinematic imagery and Apple-level simplicity.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router, Turbopack) + **React 19** + **TypeScript**
+- **Tailwind CSS v4** (CSS-first tokens in `globals.css`)
+- **Framer Motion** — page reveals, parallax, drawers, counters, magnetic buttons, custom cursor
+- **Lucide** icons, `next/image`, `next/font` (Cormorant Garamond + Inter)
+
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # production build (all routes prerendered)
+npm start       # serve the production build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Cinematic full-screen hero with parallax, text reveal and floating light accents
+- Transparent → glass sticky navbar; full-screen animated mobile menu; mobile bottom nav
+- Editorial homepage: category tiles, new-arrivals & trending carousels, Heritage
+  editorial spread, dark bridal feature, animated stats, masonry social gallery,
+  testimonials, newsletter
+- `/shop` — URL-driven filters (category, price, material, collection, availability,
+  rating) + sorting, desktop sidebar and mobile filter drawer
+- `/product/[slug]` — gallery, quantity, accordions, reviews, related products,
+  Product JSON-LD, per-product Open Graph metadata
+- Slide-out cart drawer with free-shipping progress; wishlist page with empty state;
+  full-screen search overlay (recent + popular searches, live results)
+- Cart, wishlist and recent searches persist in `localStorage` via a single
+  React context store (`src/lib/store.tsx`) — ready to be swapped for a real backend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## SEO
 
-## Learn More
+`sitemap.ts` (40 URLs), `robots.ts`, per-page canonicals, a branded
+`opengraph-image` generated at build time with the real brand fonts, SVG +
+Apple touch icons, and JSON-LD (`Organization` + `WebSite` on the home page,
+`Product` with `AggregateRating`/`Offer` on every product page).
 
-To learn more about Next.js, take a look at the following resources:
+## Accessibility
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Verified in a real browser: skip-to-content link, `main` landmark, focus trapped
+inside every overlay with focus restored to the trigger on close, Escape closes
+the topmost overlay, `aria-modal` dialogs, alt text on every image, an
+accessible name on every button, `prefers-reduced-motion` respected, and all
+text meeting WCAG AA contrast — including text set over photography, which was
+measured from rendered pixels rather than CSS values.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Structure
 
-## Deploy on Vercel
+```
+src/
+  app/           routes (home, shop, product/[slug], collections, wishlist, about, account)
+  components/    home/ shop/ products/ cart/ search/ wishlist/ layout/ ui/
+  data/          products.ts (36 products), site.ts (categories, collections, copy)
+  lib/           store.tsx (cart/wishlist context), utils.ts (cn, INR formatting)
+  types/         shared TypeScript models
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Product photography via Unsplash (demo content).

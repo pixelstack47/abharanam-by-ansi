@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Our static export target (`distDir: "dist"`) — generated, never linted.
+    "dist/**",
   ]),
 ]);
 

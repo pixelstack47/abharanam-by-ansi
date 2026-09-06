@@ -1,8 +1,13 @@
 import type {
+  AccountProfile,
   Address,
+  CategoryInfo,
+  CollectionInfo,
+  MaterialInfo,
   OrderItem,
   Product,
   SerializedOrder,
+  SerializedReview,
   SerializedUser,
   SessionUser,
 } from "./types.ts";
@@ -86,6 +91,9 @@ export function toOrder(doc: unknown): SerializedOrder {
     },
     items: Array.isArray(d.items) ? d.items.map((i: Raw) => toOrderItem(plain(i))) : [],
     subtotal: d.subtotal,
+    // Legacy orders predate the GST breakout — fall back to 0.
+    gstRate: typeof d.gstRate === "number" ? d.gstRate : 0,
+    gstAmount: typeof d.gstAmount === "number" ? d.gstAmount : 0,
     shippingFee: d.shippingFee,
     total: d.total,
     status: d.status ?? "pending",
@@ -111,6 +119,90 @@ export function toUser(doc: unknown, orderCount?: number): SerializedUser {
   if (d.phone) user.phone = d.phone;
   if (typeof orderCount === "number") user.orderCount = orderCount;
   return user;
+}
+
+export function toCategory(doc: unknown, productCount?: number): CategoryInfo {
+  const d = plain(doc);
+  return {
+    id: String(d._id),
+    name: d.name,
+    image: d.image ?? "",
+    blurb: d.blurb ?? "",
+    sortOrder: d.sortOrder ?? 0,
+    productCount: productCount ?? 0,
+  };
+}
+
+export function toCollection(doc: unknown, productCount?: number): CollectionInfo {
+  const d = plain(doc);
+  return {
+    id: String(d._id),
+    name: d.name,
+    title: d.title ?? "",
+    description: d.description ?? "",
+    image: d.image ?? "",
+    sortOrder: d.sortOrder ?? 0,
+    productCount: productCount ?? 0,
+  };
+}
+
+export function toMaterial(doc: unknown, productCount?: number): MaterialInfo {
+  const d = plain(doc);
+  return {
+    id: String(d._id),
+    name: d.name,
+    sortOrder: d.sortOrder ?? 0,
+    productCount: productCount ?? 0,
+  };
+}
+
+/** Self-service profile shape (phone + address + wishlist + cart) from a User doc. */
+export function toAccountProfile(doc: unknown): AccountProfile {
+  const d = plain(doc);
+  const profile: AccountProfile = {
+    wishlist: Array.isArray(d.wishlist) ? d.wishlist.map(String) : [],
+    cart: Array.isArray(d.cart)
+      ? d.cart.map((item: Raw) => {
+          const raw = plain(item);
+          return { slug: String(raw.slug), quantity: Number(raw.quantity) };
+        })
+      : [],
+  };
+  if (d.phone) profile.phone = String(d.phone);
+  const rawAddress: Raw | null =
+    d.address && typeof d.address === "object" ? plain(d.address) : null;
+  if (rawAddress?.line1) {
+    const address: Address = {
+      line1: rawAddress.line1,
+      city: rawAddress.city ?? "",
+      state: rawAddress.state ?? "",
+      pincode: rawAddress.pincode ?? "",
+    };
+    if (rawAddress.line2) address.line2 = rawAddress.line2;
+    profile.address = address;
+  }
+  return profile;
+}
+
+export function toReview(
+  doc: unknown,
+  extra?: { productSlug?: string; productName?: string },
+): SerializedReview {
+  const d = plain(doc);
+  const review: SerializedReview = {
+    id: String(d._id),
+    productId: String(d.productId),
+    userId: String(d.userId),
+    name: d.name ?? "",
+    rating: d.rating ?? 0,
+    body: d.body ?? "",
+    verified: d.verified === true,
+    createdAt: toISO(d.createdAt),
+  };
+  if (d.title) review.title = d.title;
+  if (extra?.productSlug) review.productSlug = extra.productSlug;
+  if (extra?.productName) review.productName = extra.productName;
+  return review;
 }
 
 export function toSessionUser(doc: unknown): SessionUser {

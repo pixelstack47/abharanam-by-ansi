@@ -4,7 +4,15 @@ import type { SerializedOrder } from "../types.ts";
 /** The fields of an order the WhatsApp message needs. */
 export type OrderForWhatsApp = Pick<
   SerializedOrder,
-  "orderNumber" | "items" | "subtotal" | "shippingFee" | "total" | "customer" | "note"
+  | "orderNumber"
+  | "items"
+  | "subtotal"
+  | "gstRate"
+  | "gstAmount"
+  | "shippingFee"
+  | "total"
+  | "customer"
+  | "note"
 >;
 
 /**
@@ -21,8 +29,16 @@ export function buildOrderWhatsAppUrl(order: OrderForWhatsApp): string {
     msg += `• ${item.name} ×${item.quantity} — ₹${item.price * item.quantity}\n`;
   }
 
+  // GST is a breakout of the GST-inclusive subtotal, not an add-on.
+  // Skipped when 0 (legacy orders, or a 0% rate).
+  const gstLine =
+    order.gstAmount > 0
+      ? `\nIncludes GST (${order.gstRate}%): ₹${order.gstAmount}`
+      : "";
+
   msg +=
     `\nSubtotal: ₹${order.subtotal}` +
+    gstLine +
     `\nShipping: ${order.shippingFee === 0 ? "Free" : `₹${order.shippingFee}`}` +
     `\n*Total: ₹${order.total}*` +
     `\n\n*Customer*` +

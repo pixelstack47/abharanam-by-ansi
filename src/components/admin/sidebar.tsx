@@ -4,12 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Gem,
+  Layers,
   LayoutDashboard,
   LogOut,
   Menu,
   Package,
   ShoppingBag,
+  Star,
   Store,
+  Tags,
   Users,
   X,
 } from "lucide-react";
@@ -19,7 +23,11 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
   { label: "Products", href: "/admin/products", icon: Package, exact: false },
+  { label: "Categories", href: "/admin/categories", icon: Tags, exact: false },
+  { label: "Collections", href: "/admin/collections", icon: Layers, exact: false },
+  { label: "Materials", href: "/admin/materials", icon: Gem, exact: false },
   { label: "Orders", href: "/admin/orders", icon: ShoppingBag, exact: false },
+  { label: "Reviews", href: "/admin/reviews", icon: Star, exact: false },
   { label: "Users", href: "/admin/users", icon: Users, exact: false },
 ] as const;
 

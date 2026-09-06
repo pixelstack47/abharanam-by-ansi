@@ -2,7 +2,7 @@
 //   POST /register  { name, email, password, phone? } -> 201 { user } + cookie
 //   POST /login     { email, password }               -> { user } + cookie (401 wrong creds, 403 blocked)
 //   POST /logout                                      -> { ok: true } + clears cookie
-//   GET  /me                                          -> { user: SessionUser | null } (always 200)
+//   GET  /me                                          -> { user: SessionUser | null, profile: AccountProfile | null } (always 200)
 import { Router } from "express";
 import type { Response } from "express";
 import { User } from "../models/User.ts";
@@ -13,7 +13,7 @@ import {
   sessionCookie,
 } from "../lib/auth.ts";
 import type { AuthedRequest } from "../lib/auth.ts";
-import { toSessionUser } from "../serializers.ts";
+import { toAccountProfile, toSessionUser } from "../serializers.ts";
 import { wrap } from "../lib/wrap.ts";
 
 const router = Router();
@@ -142,7 +142,15 @@ router.post(
 router.get(
   "/me",
   wrap(async (req: AuthedRequest, res) => {
-    return res.json({ user: req.user ?? null });
+    // `user` keeps its existing shape for current callers; `profile` adds the
+    // saved phone/address from the User document when the session is valid.
+    const user = req.user ?? null;
+    let profile = null;
+    if (user) {
+      const doc = await User.findById(user.id);
+      if (doc) profile = toAccountProfile(doc);
+    }
+    return res.json({ user, profile });
   }),
 );
 

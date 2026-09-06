@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { apiGetOrNull } from "@/lib/api";
 import { SITE_NAME } from "@/data/site";
-import type { Product } from "@/types";
+import type { Product, SerializedReview } from "@/types";
 import { ProductDetail } from "@/components/products/product-detail";
 import { ProductCarousel } from "@/components/products/product-carousel";
 
@@ -14,10 +14,18 @@ interface ProductPageProps {
 }
 
 type ProductResponse = { product: Product; related: Product[] };
+type ReviewsResponse = { reviews: SerializedReview[]; total: number };
 
 function fetchProduct(slug: string) {
   return apiGetOrNull<ProductResponse>(
     `/api/products/${encodeURIComponent(slug)}`,
+  );
+}
+
+/** Newest-first reviews for the PDP; a missing/404 route degrades to empty. */
+function fetchReviews(slug: string) {
+  return apiGetOrNull<ReviewsResponse>(
+    `/api/products/${encodeURIComponent(slug)}/reviews?limit=50`,
   );
 }
 
@@ -40,11 +48,16 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const data = await fetchProduct(slug);
+  const [data, reviewsData] = await Promise.all([
+    fetchProduct(slug),
+    fetchReviews(slug),
+  ]);
   if (!data) notFound();
   const { product, related } = data;
+  const reviews = reviewsData?.reviews ?? [];
+  const reviewsTotal = reviewsData?.total ?? 0;
 
-  const structuredData = {
+  const structuredData: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
@@ -52,11 +65,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
     image: product.images,
     brand: { "@type": "Brand", name: SITE_NAME },
     material: product.material,
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: product.rating,
-      reviewCount: product.reviewCount,
-    },
     offers: {
       "@type": "Offer",
       priceCurrency: "INR",
@@ -66,6 +74,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
         : "https://schema.org/OutOfStock",
     },
   };
+  // Only claim an aggregate rating once real reviews exist.
+  if (product.reviewCount > 0) {
+    structuredData.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: product.rating,
+      reviewCount: product.reviewCount,
+    };
+  }
 
   return (
     <>
@@ -73,7 +89,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <ProductDetail product={product} />
+      <ProductDetail
+        product={product}
+        initialReviews={reviews}
+        reviewsTotal={reviewsTotal}
+      />
       <ProductCarousel
         eyebrow="Complete the Look"
         title={

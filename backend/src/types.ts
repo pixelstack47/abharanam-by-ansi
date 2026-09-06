@@ -50,6 +50,11 @@ export interface Product {
   tags: string[];
 }
 
+export interface CartItem {
+  slug: string;
+  quantity: number;
+}
+
 export type SortOption =
   | "featured"
   | "newest"
@@ -104,6 +109,10 @@ export interface SerializedOrder {
   customer: OrderCustomer;
   items: OrderItem[];
   subtotal: number;
+  /** GST rate (%) broken out of the GST-inclusive prices. */
+  gstRate: number;
+  /** Tax portion already included in `subtotal` (not added on top). */
+  gstAmount: number;
   shippingFee: number;
   total: number;
   status: OrderStatus;
@@ -123,6 +132,61 @@ export interface SerializedUser {
   orderCount?: number;
 }
 
+/** Self-service profile data returned alongside the session by GET /api/auth/me. */
+export interface AccountProfile {
+  phone?: string;
+  address?: Address;
+  /** Wishlisted product slugs — always present (empty array when unset). */
+  wishlist: string[];
+  /** Cart lines — always emitted by the API (empty array when unset). */
+  cart?: CartItem[];
+}
+
+export interface SerializedReview {
+  id: string;
+  productId: string;
+  userId: string;
+  name: string;
+  rating: number;
+  title?: string;
+  body: string;
+  /** True when the reviewer has an order containing this product. */
+  verified: boolean;
+  createdAt: string;
+  /** Present only on admin listings. */
+  productSlug?: string;
+  productName?: string;
+}
+
+/** Serialized DB-managed category (see models/Category.ts). */
+export interface CategoryInfo {
+  id: string;
+  name: string;
+  image: string;
+  blurb: string;
+  sortOrder: number;
+  productCount: number;
+}
+
+/** Serialized DB-managed material (see models/Material.ts). */
+export interface MaterialInfo {
+  id: string;
+  name: string;
+  sortOrder: number;
+  productCount: number;
+}
+
+/** Serialized DB-managed collection (see models/Collection.ts). */
+export interface CollectionInfo {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  image: string;
+  sortOrder: number;
+  productCount: number;
+}
+
 // ---------------------------------------------------------------------------
 // Runtime constants (handy for validation and stats aggregation)
 // ---------------------------------------------------------------------------
@@ -135,6 +199,7 @@ export const ORDER_STATUSES: readonly OrderStatus[] = [
   "cancelled",
 ] as const;
 
+// Seed defaults; runtime source of truth is the DB (Category model).
 export const CATEGORIES: readonly Category[] = [
   "Necklaces",
   "Chokers",
@@ -147,6 +212,7 @@ export const CATEGORIES: readonly Category[] = [
   "Accessories",
 ] as const;
 
+// Seed defaults; runtime source of truth is the DB (Material model).
 export const MATERIALS: readonly Material[] = [
   "18K Gold Plated",
   "92.5 Silver",
@@ -156,6 +222,7 @@ export const MATERIALS: readonly Material[] = [
   "Pearl",
 ] as const;
 
+// Seed defaults; runtime source of truth is the DB (Collection model).
 export const COLLECTIONS: readonly CollectionName[] = [
   "Heritage",
   "Modern Muse",

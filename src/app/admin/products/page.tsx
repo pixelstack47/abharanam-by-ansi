@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import type { Product } from "@/types";
-import { CATEGORIES } from "@/data/site";
 import { formatINR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { toast } from "@/components/admin/toaster";
 import { apiFetch, useApi } from "@/components/admin/use-api";
 
 export default function AdminProductsPage() {
@@ -53,6 +53,13 @@ export default function AdminProductsPage() {
     };
   }, [data]);
 
+  // Filter options come from the catalogue itself (categories are DB-managed
+  // now, so the static list is gone) — only categories with products show up.
+  const categoryOptions = useMemo(() => {
+    const names = new Set([...(data?.products ?? []), ...extraProducts].map((p) => p.category));
+    return Array.from(names).sort();
+  }, [data, extraProducts]);
+
   const filtered = useMemo(() => {
     const products = [...(data?.products ?? []), ...extraProducts];
     const q = search.trim().toLowerCase();
@@ -77,11 +84,13 @@ export default function AdminProductsPage() {
         method: "DELETE",
       });
       setPendingDelete(null);
+      toast.success("Product deleted.");
       await refetch();
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : "Could not delete the product",
-      );
+      const message =
+        err instanceof Error ? err.message : "Could not delete the product";
+      setActionError(message);
+      toast.error(message);
       setPendingDelete(null);
     } finally {
       setDeleting(false);
@@ -128,9 +137,9 @@ export default function AdminProductsPage() {
           className="h-11 cursor-pointer border border-ink/20 bg-white px-4 text-sm outline-none transition-colors focus:border-ink sm:w-52"
         >
           <option value="all">All categories</option>
-          {CATEGORIES.map((c) => (
-            <option key={c.name} value={c.name}>
-              {c.name}
+          {categoryOptions.map((name) => (
+            <option key={name} value={name}>
+              {name}
             </option>
           ))}
         </select>

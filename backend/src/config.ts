@@ -52,9 +52,21 @@ export const config = {
   adminPassword: read("ADMIN_PASSWORD") ?? "",
   /** WhatsApp number that receives order messages (country code + number, no "+"). */
   whatsappNumber: must("WHATSAPP_NUMBER"),
+  /** GST rate (%) already included in product prices (breakout, not add-on). */
+  gstRatePercent: Number(read("GST_RATE_PERCENT") ?? "3"),
   isProduction: process.env.NODE_ENV === "production",
 } as const;
 
 if (!Number.isInteger(config.port) || config.port <= 0) {
   throw new Error(`PORT must be a positive integer, got: ${process.env.PORT}`);
+}
+
+if (
+  !Number.isFinite(config.gstRatePercent) ||
+  config.gstRatePercent < 0 ||
+  config.gstRatePercent > 28
+) {
+  throw new Error(
+    `GST_RATE_PERCENT must be a number between 0 and 28, got: ${process.env.GST_RATE_PERCENT}`
+  );
 }

@@ -112,7 +112,7 @@ export function ProductCard({
           </h3>
         </div>
         <p className="line-clamp-1 text-xs text-stone">{product.shortDescription}</p>
-        {showRating && (
+        {showRating && product.reviewCount > 0 && (
           <div className="flex items-center gap-1.5">
             <Rating value={product.rating} size={11} />
             <span className="text-[11px] text-stone">({product.reviewCount})</span>

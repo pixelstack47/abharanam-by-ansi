@@ -5,8 +5,10 @@
 //   PATCH /:id   admin { status } -> { order }
 import { Router } from "express";
 import mongoose from "mongoose";
+import { config } from "../config.ts";
 import { Product } from "../models/Product.ts";
 import { Order } from "../models/Order.ts";
+import { User } from "../models/User.ts";
 import { nextOrderNumber } from "../models/Counter.ts";
 import { requireUser, requireAdmin } from "../lib/auth.ts";
 import type { AuthedRequest } from "../lib/auth.ts";
@@ -188,6 +190,10 @@ router.post(
     );
     const shippingFee = subtotal >= 1999 ? 0 : 99;
     const total = subtotal + shippingFee;
+    // Prices are GST-INCLUSIVE — break the tax portion out of the subtotal
+    // (totals do not change).
+    const gstRate = config.gstRatePercent;
+    const gstAmount = Math.round((subtotal * gstRate) / (100 + gstRate));
     const orderNumber = await nextOrderNumber();
 
     const doc = new Order({
@@ -196,12 +202,30 @@ router.post(
       customer: parsedCustomer.customer,
       items,
       subtotal,
+      gstRate,
+      gstAmount,
       shippingFee,
       total,
       status: "pending",
       ...(note ? { note } : {}),
     });
     await doc.save();
+
+    // "Remember my address": persist the delivery address on the signed-in
+    // user's profile (and the phone, if none is saved yet). Never lets a
+    // profile hiccup fail an order that already saved.
+    if (req.user) {
+      try {
+        const userDoc = await User.findById(req.user.id);
+        if (userDoc) {
+          if (!userDoc.phone) userDoc.phone = parsedCustomer.customer.phone;
+          userDoc.address = parsedCustomer.customer.address;
+          await userDoc.save();
+        }
+      } catch (err) {
+        console.error("[orders] failed to save profile address:", err);
+      }
+    }
 
     const order = toOrder(doc);
     return res

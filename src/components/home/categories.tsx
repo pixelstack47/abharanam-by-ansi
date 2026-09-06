@@ -1,16 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { CATEGORIES } from "@/data/site";
 import { Reveal } from "@/components/ui/reveal";
 import { cn } from "@/lib/utils";
+import type { CategoryInfo } from "@/types";
 
-const featured = ["Necklaces", "Earrings", "Bridal", "Anti-Tarnish"] as const;
+export function FeaturedCategories({ categories }: { categories: CategoryInfo[] }) {
+  // The API returns categories sorted by sortOrder, so the first four are the
+  // house's curated picks; the asymmetric grid below is composed for four tiles.
+  const tiles = categories.slice(0, 4);
 
-export function FeaturedCategories() {
-  const tiles = featured
-    .map((name) => CATEGORIES.find((c) => c.name === name))
-    .filter((c): c is (typeof CATEGORIES)[number] => Boolean(c));
+  if (tiles.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-[1440px] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">

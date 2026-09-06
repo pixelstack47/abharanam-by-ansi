@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { COLLECTIONS } from "@/data/site";
 import { apiGet } from "@/lib/api";
-import type { Product } from "@/types";
+import type { CollectionInfo } from "@/types";
 import { Reveal, ImageReveal } from "@/components/ui/reveal";
 import { cn } from "@/lib/utils";
 
@@ -19,8 +18,8 @@ export const metadata: Metadata = {
 };
 
 export default async function CollectionsPage() {
-  const { products } = await apiGet<{ products: Product[]; total: number }>(
-    "/api/products?limit=500",
+  const { collections } = await apiGet<{ collections: CollectionInfo[] }>(
+    "/api/collections",
   );
 
   return (
@@ -33,8 +32,12 @@ export default async function CollectionsPage() {
       </header>
 
       <div className="mx-auto max-w-[1440px] space-y-20 px-4 pb-28 sm:px-6 lg:space-y-28 lg:px-10">
-        {COLLECTIONS.map((collection, i) => {
-          const count = products.filter((p) => p.collection === collection.name).length;
+        {collections.length === 0 && (
+          <p className="font-serif text-2xl font-light text-stone">
+            New collections are being composed — return soon.
+          </p>
+        )}
+        {collections.map((collection, i) => {
           const flipped = i % 2 === 1;
           return (
             <article
@@ -60,7 +63,7 @@ export default async function CollectionsPage() {
               <div className={cn("lg:col-span-5", flipped && "lg:order-1")}>
                 <Reveal>
                   <p className="text-[11px] uppercase tracking-luxe text-gold-dark">
-                    No. 0{i + 1} · {count} pieces
+                    No. 0{i + 1} · {collection.productCount} pieces
                   </p>
                   <h2 className="mt-4 font-serif text-3xl font-light sm:text-4xl lg:text-5xl">
                     {collection.title}

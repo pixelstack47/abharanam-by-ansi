@@ -43,6 +43,10 @@ const orderSchema = new Schema(
     customer: { type: customerSchema, required: true },
     items: { type: [orderItemSchema], required: true },
     subtotal: { type: Number, required: true },
+    /** GST rate (%) at order time — prices are GST-inclusive (0 on legacy docs). */
+    gstRate: { type: Number, required: true, default: 0 },
+    /** Tax portion already included in `subtotal` — a breakout, not an add-on. */
+    gstAmount: { type: Number, required: true, default: 0 },
     shippingFee: { type: Number, required: true },
     total: { type: Number, required: true },
     status: {

@@ -1,7 +1,18 @@
-import type { Product } from "./types.ts";
+import type { Category, CollectionName, Product } from "./types.ts";
 
 /** A catalogue product before the database assigns its id. */
 export type SeedProduct = Omit<Product, "id">;
+
+/** A category tile before the database assigns its id (sortOrder = array index). */
+export type SeedCategory = { name: Category; image: string; blurb: string };
+
+/** A collection before the database assigns its id (sortOrder = array index). */
+export type SeedCollection = {
+  name: CollectionName;
+  title: string;
+  description: string;
+  image: string;
+};
 
 /** Verified Unsplash photo ids used across the catalogue. */
 const img = (id: string, w = 1200) =>
@@ -20,8 +31,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "A whisper-fine chain with a hand-set solitaire pendant.",
     description:
       "The Aurelia is our love letter to quiet luxury — a whisper-fine 18K gold plated chain carrying a single hand-set stone that catches light with every turn. Designed to be worn alone or layered, it moves from morning meetings to evening celebrations without missing a beat.",
-    rating: 4.8,
-    reviewCount: 214,
+    rating: 0,
+    reviewCount: 0,
     isBestseller: true,
     inStock: true,
     tags: ["pendant", "layering", "minimal"],
@@ -38,8 +49,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Sculptural choker inspired by temple architecture.",
     description:
       "Inspired by the carved arches of South Indian temple architecture, the Seraphine choker sits close to the collarbone with a sculptural, almost architectural presence. Each link is individually polished for a mirror finish that reads as solid gold.",
-    rating: 4.9,
-    reviewCount: 187,
+    rating: 0,
+    reviewCount: 0,
     isBestseller: true,
     inStock: true,
     tags: ["statement", "traditional", "festive"],
@@ -55,8 +66,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Freshwater pearls suspended from gold vermeil hooks.",
     description:
       "Luminous freshwater pearls suspended from delicate gold vermeil hooks. The Luna earrings sway gently as you move, framing the face with a soft, romantic glow that flatters every skin tone.",
-    rating: 4.7,
-    reviewCount: 342,
+    rating: 0,
+    reviewCount: 0,
     isNew: true,
     inStock: true,
     tags: ["pearl", "drops", "romantic"],
@@ -73,8 +84,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Brilliant-cut solitaire studs with a fire like the real thing.",
     description:
       "Cut and calibrated to mimic the fire of a natural solitaire, the Isabeau studs bring effortless brilliance to every day. Set in rhodium-finished prongs that never overshadow the stone.",
-    rating: 4.6,
-    reviewCount: 156,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["studs", "solitaire", "office"],
   },
@@ -90,8 +101,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "A regal long haram with hand-pressed kundan work.",
     description:
       "The Vasanta haram carries generations of craft in every motif. Hand-pressed kundan stones are set into an antique gold finish that deepens beautifully with wear — a family heirloom from the day it arrives.",
-    rating: 4.9,
-    reviewCount: 98,
+    rating: 0,
+    reviewCount: 0,
     isBestseller: true,
     inStock: true,
     tags: ["haram", "kundan", "wedding"],
@@ -108,8 +119,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Complete bridal parure — necklace, earrings and maang tikka.",
     description:
       "Our signature bridal parure: a cascading kundan necklace, chandelier earrings and a maang tikka designed as one continuous composition. Muhurtham is made for the day every eye in the room is on you.",
-    rating: 5.0,
-    reviewCount: 64,
+    rating: 0,
+    reviewCount: 0,
     isBestseller: true,
     inStock: true,
     tags: ["bridal", "set", "kundan"],
@@ -125,8 +136,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Waterproof, sweatproof, life-proof herringbone chain.",
     description:
       "Wear it in the shower, to the gym, on the beach. The Noor herringbone chain is triple-sealed with our anti-tarnish coating so it keeps its liquid-gold shine through everything your week throws at it.",
-    rating: 4.8,
-    reviewCount: 421,
+    rating: 0,
+    reviewCount: 0,
     isNew: true,
     isBestseller: true,
     inStock: true,
@@ -144,8 +155,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Three chains, one clasp — the effortless layered look.",
     description:
       "Three graduated chains joined at a single clasp, so you get the perfectly-styled layered look without the tangle. Celeste is the piece our studio team reaches for most.",
-    rating: 4.7,
-    reviewCount: 268,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["layered", "chains", "minimal"],
   },
@@ -160,8 +171,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Bold, organically sculpted hoops with a satin finish.",
     description:
       "Organic, almost molten in form, the Margot hoops are cast in a satin gold finish that photographs like sunlight. Feather-light despite their presence — you will forget you are wearing them.",
-    rating: 4.8,
-    reviewCount: 305,
+    rating: 0,
+    reviewCount: 0,
     isBestseller: true,
     inStock: true,
     tags: ["hoops", "statement", "everyday"],
@@ -178,8 +189,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Goddess Lakshmi motifs in antique gold finish.",
     description:
       "Hand-finished Lakshmi motifs march along this classic temple necklace, each one burnished to an antique glow. Priya pairs as beautifully with a Kanjeevaram as it does with a plain black dress.",
-    rating: 4.9,
-    reviewCount: 142,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["temple", "traditional", "festive"],
   },
@@ -194,8 +205,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "A fluid wave of solid 92.5 silver.",
     description:
       "One continuous wave of solid 92.5 sterling silver, polished until it flows like water around the finger. Ondine stacks beautifully or stands alone as a quiet signature.",
-    rating: 4.6,
-    reviewCount: 189,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["ring", "silver", "stacking"],
   },
@@ -211,8 +222,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "The proposal-worthy solitaire, without the price tag.",
     description:
       "A cathedral-set brilliant that holds its own against stones ten times its price. The Amara solitaire is our most-gifted ring — and our most photographed.",
-    rating: 4.9,
-    reviewCount: 233,
+    rating: 0,
+    reviewCount: 0,
     isBestseller: true,
     inStock: true,
     tags: ["ring", "solitaire", "gift"],
@@ -229,8 +240,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Crescent chandbalis with hanging pearl fringe.",
     description:
       "The eternal crescent, reimagined. Zaria's chandbali silhouette carries a fringe of seed pearls that dance with every step — festive dressing at its most graceful.",
-    rating: 4.8,
-    reviewCount: 176,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["chandbali", "festive", "pearl"],
   },
@@ -245,8 +256,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "An unbroken line of brilliance around the wrist.",
     description:
       "Forty-two calibrated stones in a continuous channel setting. The Vera tennis bracelet is engineered to flex with the wrist while reading as a single unbroken line of light.",
-    rating: 4.7,
-    reviewCount: 121,
+    rating: 0,
+    reviewCount: 0,
     isNew: true,
     inStock: true,
     tags: ["bracelet", "tennis", "evening"],
@@ -263,8 +274,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Dense kundan choker with emerald-green drops.",
     description:
       "A dense field of hand-set kundan punctuated by emerald-green drops. Kanak sits high and proud on the neckline — the anchor piece of a bridal trousseau.",
-    rating: 4.9,
-    reviewCount: 87,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["bridal", "choker", "kundan"],
   },
@@ -279,8 +290,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Liquid-smooth snake chain in a mirror gold finish.",
     description:
       "Smooth as poured metal, the Sylvie snake chain catches light along its entire length. Anti-tarnish sealed, it is the layering essential that starts every neck stack.",
-    rating: 4.6,
-    reviewCount: 254,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["chain", "layering", "anti-tarnish"],
   },
@@ -296,8 +307,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Deep green stones ringed by antique gold beadwork.",
     description:
       "Deep, forest-green stones ringed with hand-applied gold beadwork. The Rhea choker brings old-world opulence to modern silhouettes — worn best with a bare neckline.",
-    rating: 4.8,
-    reviewCount: 113,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["choker", "emerald", "festive"],
   },
@@ -312,8 +323,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Tiny bezel stations spaced along a fine gold chain.",
     description:
       "Seven tiny bezel-set stations spaced along a fine chain — the Elowen adds the subtlest glimmer above a crew neck or under a shirt collar. Quietly perfect.",
-    rating: 4.7,
-    reviewCount: 198,
+    rating: 0,
+    reviewCount: 0,
     isNew: true,
     inStock: true,
     tags: ["station", "minimal", "layering"],
@@ -330,8 +341,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Classic domed jhumkas with a modern matte finish.",
     description:
       "The classic domed jhumka, re-cut with cleaner lines and a modern matte-gold finish. Aisha bridges heirloom and contemporary — festive enough for a wedding, easy enough for Friday dinner.",
-    rating: 4.8,
-    reviewCount: 289,
+    rating: 0,
+    reviewCount: 0,
     isBestseller: true,
     inStock: true,
     tags: ["jhumka", "traditional", "festive"],
@@ -347,8 +358,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Hand-knotted freshwater pearls with a gold toggle.",
     description:
       "Individually hand-knotted freshwater pearls finished with a sculptural gold toggle clasp meant to be worn at the front. Mira is the modern way to wear pearls.",
-    rating: 4.7,
-    reviewCount: 167,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["pearl", "strand", "modern"],
   },
@@ -364,8 +375,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Opera-length haram with coin and deity motifs.",
     description:
       "An opera-length haram strung with burnished coin and deity motifs, closing with an adjustable silk cord. Devi layers magnificently over the Priya temple necklace.",
-    rating: 4.9,
-    reviewCount: 76,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["haram", "temple", "wedding"],
   },
@@ -380,8 +391,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "A confident curb link with softened, rounded edges.",
     description:
       "A confident curb-link chain with every edge softened and rounded for comfort. Sable is unisex by design — substantial without ever being loud.",
-    rating: 4.6,
-    reviewCount: 143,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["curb", "unisex", "statement"],
   },
@@ -397,8 +408,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Three sculpted cuffs — no piercings required.",
     description:
       "Three sculpted cuffs in graduated sizes, designed to climb the ear in a single sweep. No piercings required, endless combinations possible.",
-    rating: 4.5,
-    reviewCount: 312,
+    rating: 0,
+    reviewCount: 0,
     isNew: true,
     inStock: true,
     tags: ["ear cuff", "set", "edgy"],
@@ -414,8 +425,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "An oversized emerald-cut stone in a bold gold bezel.",
     description:
       "An oversized emerald-cut stone caught in a heavy gold bezel — the Ravenna is pure evening drama, made to be seen across the room.",
-    rating: 4.7,
-    reviewCount: 95,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["cocktail", "ring", "evening"],
   },
@@ -431,8 +442,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Four-tier chandelier earrings that frame the face in light.",
     description:
       "Four tiers of graduated stones cascade from a single stud — the Inès chandeliers were designed under veil lighting to frame the face in pure light.",
-    rating: 4.9,
-    reviewCount: 58,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["bridal", "chandelier", "statement"],
   },
@@ -447,8 +458,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Chunky hoops you never have to take off.",
     description:
       "Chunky, light-catching hoops sealed with our triple anti-tarnish coating. Sleep in them, swim in them — Opaline keeps its shine for years, guaranteed.",
-    rating: 4.8,
-    reviewCount: 387,
+    rating: 0,
+    reviewCount: 0,
     isBestseller: true,
     inStock: true,
     tags: ["hoops", "anti-tarnish", "waterproof"],
@@ -464,8 +475,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "A drop lariat that traces the neckline like a brushstroke.",
     description:
       "One fluid line dropping into a Y-silhouette, ending in a polished teardrop. The Sonata lariat traces the neckline like a single brushstroke — made for open collars and evening necklines.",
-    rating: 4.7,
-    reviewCount: 134,
+    rating: 0,
+    reviewCount: 0,
     isNew: true,
     inStock: true,
     tags: ["lariat", "minimal", "evening"],
@@ -482,8 +493,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "A cascading three-layer haram for the grandest entrance.",
     description:
       "Three cascading layers of kundan and pearl, engineered to sit flat and move as one. Gitanjali is our most elaborate bridal piece — built for the grandest of entrances.",
-    rating: 5.0,
-    reviewCount: 41,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["bridal", "haram", "layered"],
   },
@@ -498,8 +509,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "A fine box chain anklet with a single bezel charm.",
     description:
       "A fine box-link anklet carrying one tiny bezel-set charm. Etta is summer distilled — waterproof, tarnish-free and barely there.",
-    rating: 4.5,
-    reviewCount: 221,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["anklet", "summer", "anti-tarnish"],
   },
@@ -515,8 +526,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "A rigid open collar with sculpted gold end-caps.",
     description:
       "A rigid open collar finished with two sculpted end-caps that sit just off-centre at the throat. Cassia is minimalism with a spine — striking over turtlenecks and bare skin alike.",
-    rating: 4.6,
-    reviewCount: 108,
+    rating: 0,
+    reviewCount: 0,
     isNew: true,
     inStock: true,
     tags: ["collar", "minimal", "sculptural"],
@@ -532,8 +543,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "A full circle of pavé stones, symbol of the unbroken.",
     description:
       "Pavé stones circle the full band with no beginning and no end. The Nyra eternity band stacks with the Amara solitaire or speaks quietly on its own.",
-    rating: 4.8,
-    reviewCount: 173,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["band", "stacking", "gift"],
   },
@@ -549,8 +560,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "An antique coin motif on a tarnish-free rope chain.",
     description:
       "A hand-antiqued coin motif suspended from a tarnish-free rope chain. Veda carries the weight of heritage with none of the upkeep — polish-free forever.",
-    rating: 4.7,
-    reviewCount: 246,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["coin", "pendant", "heritage"],
   },
@@ -565,8 +576,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Interlocked bands of silver and gold vermeil.",
     description:
       "Two interlocked bands — one polished silver, one gold vermeil — that rotate freely around each other. The Halcyon is a quiet fidget and a modern classic in one.",
-    rating: 4.6,
-    reviewCount: 88,
+    rating: 0,
+    reviewCount: 0,
     isNew: true,
     inStock: true,
     tags: ["ring", "two-tone", "modern"],
@@ -583,8 +594,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Uncut polki stones in a classic bib silhouette.",
     description:
       "Uncut polki-style stones set shoulder to shoulder in a classic bib silhouette. Banaras glows rather than sparkles — the unmistakable warmth of old-world jewellery.",
-    rating: 4.8,
-    reviewCount: 69,
+    rating: 0,
+    reviewCount: 0,
     inStock: false,
     tags: ["polki", "bib", "festive"],
   },
@@ -599,8 +610,8 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "Silver threaders that draw a fine line through the lobe.",
     description:
       "A single fine chain drawn through the lobe, ending in a polished bar. The Wren threaders are movement and minimalism in equal measure.",
-    rating: 4.5,
-    reviewCount: 154,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["threader", "silver", "minimal"],
   },
@@ -616,9 +627,93 @@ export const seedProducts: SeedProduct[] = [
     shortDescription: "A matched choker and haram, designed to be worn as one.",
     description:
       "A matched choker and opera-length haram composed as a single look — the traditional layered silhouette, ready in one box. Surya is the definitive festive statement.",
-    rating: 4.9,
-    reviewCount: 52,
+    rating: 0,
+    reviewCount: 0,
     inStock: true,
     tags: ["duo", "layered", "wedding"],
+  },
+];
+
+/**
+ * Taxonomy seed defaults, copied verbatim from the storefront's original
+ * static data (frontend src/data/site.ts). Seeded with $setOnInsert only, so
+ * anything the admin edits or deletes afterwards is never clobbered.
+ */
+export const seedCategories: SeedCategory[] = [
+  {
+    name: "Necklaces",
+    image: img("1610694955371-d4a3e0ce4b52"),
+    blurb: "From whisper-fine pendants to temple classics",
+  },
+  {
+    name: "Earrings",
+    image: img("1617038220319-276d3cfab638"),
+    blurb: "Studs, hoops, jhumkas and chandeliers",
+  },
+  {
+    name: "Bridal",
+    image: img("1583937443566-6fe1a1c6e400"),
+    blurb: "Parures composed for your most beautiful beginning",
+  },
+  {
+    name: "Anti-Tarnish",
+    image: img("1599459183200-59c7687a0275"),
+    blurb: "Waterproof shine you never take off",
+  },
+  {
+    name: "Chokers",
+    image: img("1618403088890-3d9ff6f4c8b1"),
+    blurb: "Sculptural pieces that sit close and speak loudly",
+  },
+  {
+    name: "Chains",
+    image: img("1635767798638-3e25273a8236"),
+    blurb: "The essentials every stack is built on",
+  },
+  {
+    name: "Harams",
+    image: img("1571908599407-cdb918ed83bf"),
+    blurb: "Opera-length grandeur, hand-finished",
+  },
+  {
+    name: "Diamond Look",
+    image: img("1605100804763-247f67b3557e"),
+    blurb: "The fire of solitaires, the freedom of everyday wear",
+  },
+  {
+    name: "Accessories",
+    image: img("1598560917505-59a3ad559071"),
+    blurb: "Rings, anklets and finishing touches",
+  },
+];
+
+export const seedCollections: SeedCollection[] = [
+  {
+    name: "Heritage",
+    title: "The Heritage Collection",
+    description:
+      "Temple motifs, kundan work and antique finishes — centuries of Indian craft, composed for the way you dress today.",
+    image: img("1601121141461-9d6647bca1ed", 1600),
+  },
+  {
+    name: "Modern Muse",
+    title: "Modern Muse",
+    description:
+      "Sculptural, fluid, quietly confident. Pieces that read like modern art and wear like second skin.",
+    image: img("1600721391689-2564bb8055de", 1600),
+  },
+  {
+    name: "Muhurtham Bridal",
+    title: "Muhurtham Bridal",
+    description:
+      "Composed under veil lighting, engineered to move as one — parures for the day every eye is on you.",
+    image: img("1583937443566-6fe1a1c6e400", 1600),
+  },
+  {
+    name: "Everyday Luxe",
+    title: "Everyday Luxe",
+    description:
+      "Waterproof, tarnish-free, barely-there luxury. The pieces you put on once and simply live in.",
+    image: img("1599459183200-59c7687a0275", 1600),
   },
 ];

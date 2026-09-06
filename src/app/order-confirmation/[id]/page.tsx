@@ -116,6 +116,12 @@ export default async function OrderConfirmationPage({
             <dt className="text-stone">Subtotal</dt>
             <dd className="font-medium">{formatINR(order.subtotal)}</dd>
           </div>
+          {order.gstAmount > 0 && (
+            <div className="flex items-center justify-between text-xs">
+              <dt className="text-stone">Includes GST ({order.gstRate}%)</dt>
+              <dd className="text-stone">{formatINR(order.gstAmount)}</dd>
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <dt className="text-stone">Shipping</dt>
             <dd

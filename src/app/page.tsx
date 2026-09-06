@@ -10,7 +10,7 @@ import { Newsletter } from "@/components/home/newsletter";
 import { ProductCarousel } from "@/components/products/product-carousel";
 import { apiGet } from "@/lib/api";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/data/site";
-import type { Product } from "@/types";
+import type { CategoryInfo, Product } from "@/types";
 
 // Catalogue-backed page: always render with live data from the backend.
 export const dynamic = "force-dynamic";
@@ -50,12 +50,14 @@ const structuredData = {
 };
 
 type ProductsResponse = { products: Product[]; total: number };
+type CategoriesResponse = { categories: CategoryInfo[] };
 
 export default async function HomePage() {
-  const [{ products: newArrivals }, { products: bestsellers }] =
+  const [{ products: newArrivals }, { products: bestsellers }, { categories }] =
     await Promise.all([
       apiGet<ProductsResponse>("/api/products?isNew=true&sort=newest&limit=8"),
       apiGet<ProductsResponse>("/api/products?isBestseller=true&limit=10"),
+      apiGet<CategoriesResponse>("/api/categories"),
     ]);
 
   return (
@@ -66,7 +68,7 @@ export default async function HomePage() {
       />
       <Hero />
       <Marquee />
-      <FeaturedCategories />
+      <FeaturedCategories categories={categories} />
       <ProductCarousel
         eyebrow="Just Landed"
         title={

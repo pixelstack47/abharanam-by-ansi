@@ -73,12 +73,15 @@ export function QuickView() {
                 <h2 className="mt-2 font-serif text-2xl leading-tight md:text-3xl">
                   {product.name}
                 </h2>
-                <div className="mt-2 flex items-center gap-2">
-                  <Rating value={product.rating} />
-                  <span className="text-xs text-stone">
-                    {product.rating} · {product.reviewCount} reviews
-                  </span>
-                </div>
+                {product.reviewCount > 0 && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <Rating value={product.rating} />
+                    <span className="text-xs text-stone">
+                      {product.rating} · {product.reviewCount}{" "}
+                      {product.reviewCount === 1 ? "review" : "reviews"}
+                    </span>
+                  </div>
+                )}
                 <p className="mt-3 flex items-baseline gap-2.5">
                   <span className="text-xl font-semibold">{formatINR(product.price)}</span>
                   {product.compareAtPrice && (

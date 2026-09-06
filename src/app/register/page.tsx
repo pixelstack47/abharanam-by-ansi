@@ -23,7 +23,7 @@ function safeNext(raw: string | null): string | null {
 
 function destinationFor(user: SessionUser, next: string | null): string {
   if (next) return next;
-  return user.role === "admin" ? "/admin" : "/account";
+  return user.role === "admin" ? "/admin" : "/";
 }
 
 interface FieldErrors {

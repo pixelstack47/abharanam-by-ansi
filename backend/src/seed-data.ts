@@ -1,12 +1,14 @@
-import type { Product } from "@/types";
+import type { Product } from "./types.ts";
+
+/** A catalogue product before the database assigns its id. */
+export type SeedProduct = Omit<Product, "id">;
 
 /** Verified Unsplash photo ids used across the catalogue. */
 const img = (id: string, w = 1200) =>
   `https://images.unsplash.com/photo-${id}?q=80&w=${w}&auto=format&fit=crop`;
 
-export const products: Product[] = [
+export const seedProducts: SeedProduct[] = [
   {
-    id: 1,
     slug: "aurelia-pendant-necklace",
     name: "Aurelia Pendant Necklace",
     category: "Necklaces",
@@ -25,7 +27,6 @@ export const products: Product[] = [
     tags: ["pendant", "layering", "minimal"],
   },
   {
-    id: 2,
     slug: "seraphine-gold-choker",
     name: "Seraphine Gold Choker",
     category: "Chokers",
@@ -44,7 +45,6 @@ export const products: Product[] = [
     tags: ["statement", "traditional", "festive"],
   },
   {
-    id: 3,
     slug: "luna-pearl-drop-earrings",
     name: "Luna Pearl Drop Earrings",
     category: "Earrings",
@@ -62,7 +62,6 @@ export const products: Product[] = [
     tags: ["pearl", "drops", "romantic"],
   },
   {
-    id: 4,
     slug: "isabeau-diamond-look-studs",
     name: "Isabeau Diamond-Look Studs",
     category: "Diamond Look",
@@ -80,7 +79,6 @@ export const products: Product[] = [
     tags: ["studs", "solitaire", "office"],
   },
   {
-    id: 5,
     slug: "vasanta-antique-haram",
     name: "Vasanta Antique Haram",
     category: "Harams",
@@ -99,7 +97,6 @@ export const products: Product[] = [
     tags: ["haram", "kundan", "wedding"],
   },
   {
-    id: 6,
     slug: "eclat-bridal-set",
     name: "Muhurtham Bridal Set",
     category: "Bridal",
@@ -118,7 +115,6 @@ export const products: Product[] = [
     tags: ["bridal", "set", "kundan"],
   },
   {
-    id: 7,
     slug: "noor-anti-tarnish-chain",
     name: "Noor Anti-Tarnish Chain",
     category: "Anti-Tarnish",
@@ -137,7 +133,6 @@ export const products: Product[] = [
     tags: ["anti-tarnish", "waterproof", "herringbone"],
   },
   {
-    id: 8,
     slug: "celeste-layered-chain",
     name: "Celeste Layered Chain",
     category: "Chains",
@@ -155,7 +150,6 @@ export const products: Product[] = [
     tags: ["layered", "chains", "minimal"],
   },
   {
-    id: 9,
     slug: "margot-sculpted-hoops",
     name: "Margot Sculpted Hoops",
     category: "Earrings",
@@ -173,7 +167,6 @@ export const products: Product[] = [
     tags: ["hoops", "statement", "everyday"],
   },
   {
-    id: 10,
     slug: "priya-temple-necklace",
     name: "Priya Temple Necklace",
     category: "Necklaces",
@@ -191,7 +184,6 @@ export const products: Product[] = [
     tags: ["temple", "traditional", "festive"],
   },
   {
-    id: 11,
     slug: "ondine-silver-ring",
     name: "Ondine Silver Ring",
     category: "Accessories",
@@ -208,7 +200,6 @@ export const products: Product[] = [
     tags: ["ring", "silver", "stacking"],
   },
   {
-    id: 12,
     slug: "amara-solitaire-ring",
     name: "Amara Solitaire Ring",
     category: "Diamond Look",
@@ -227,7 +218,6 @@ export const products: Product[] = [
     tags: ["ring", "solitaire", "gift"],
   },
   {
-    id: 13,
     slug: "zaria-chandbali-earrings",
     name: "Zaria Chandbali Earrings",
     category: "Earrings",
@@ -245,7 +235,6 @@ export const products: Product[] = [
     tags: ["chandbali", "festive", "pearl"],
   },
   {
-    id: 14,
     slug: "vera-tennis-bracelet",
     name: "Vera Tennis Bracelet",
     category: "Diamond Look",
@@ -263,7 +252,6 @@ export const products: Product[] = [
     tags: ["bracelet", "tennis", "evening"],
   },
   {
-    id: 15,
     slug: "kanak-bridal-choker",
     name: "Kanak Bridal Choker",
     category: "Bridal",
@@ -281,7 +269,6 @@ export const products: Product[] = [
     tags: ["bridal", "choker", "kundan"],
   },
   {
-    id: 16,
     slug: "sylvie-snake-chain",
     name: "Sylvie Snake Chain",
     category: "Chains",
@@ -298,7 +285,6 @@ export const products: Product[] = [
     tags: ["chain", "layering", "anti-tarnish"],
   },
   {
-    id: 17,
     slug: "rhea-emerald-choker",
     name: "Rhea Emerald Choker",
     category: "Chokers",
@@ -316,7 +302,6 @@ export const products: Product[] = [
     tags: ["choker", "emerald", "festive"],
   },
   {
-    id: 18,
     slug: "elowen-station-necklace",
     name: "Elowen Station Necklace",
     category: "Necklaces",
@@ -334,7 +319,6 @@ export const products: Product[] = [
     tags: ["station", "minimal", "layering"],
   },
   {
-    id: 19,
     slug: "aisha-jhumka-earrings",
     name: "Aisha Jhumka Earrings",
     category: "Earrings",
@@ -353,7 +337,6 @@ export const products: Product[] = [
     tags: ["jhumka", "traditional", "festive"],
   },
   {
-    id: 20,
     slug: "mira-pearl-strand",
     name: "Mira Pearl Strand",
     category: "Necklaces",
@@ -370,7 +353,6 @@ export const products: Product[] = [
     tags: ["pearl", "strand", "modern"],
   },
   {
-    id: 21,
     slug: "devi-lakshmi-haram",
     name: "Devi Lakshmi Haram",
     category: "Harams",
@@ -388,7 +370,6 @@ export const products: Product[] = [
     tags: ["haram", "temple", "wedding"],
   },
   {
-    id: 22,
     slug: "sable-curb-chain",
     name: "Sable Curb Chain",
     category: "Chains",
@@ -405,7 +386,6 @@ export const products: Product[] = [
     tags: ["curb", "unisex", "statement"],
   },
   {
-    id: 23,
     slug: "fleur-ear-cuff-set",
     name: "Fleur Ear Cuff Set",
     category: "Earrings",
@@ -424,7 +404,6 @@ export const products: Product[] = [
     tags: ["ear cuff", "set", "edgy"],
   },
   {
-    id: 24,
     slug: "ravenna-cocktail-ring",
     name: "Ravenna Cocktail Ring",
     category: "Accessories",
@@ -441,7 +420,6 @@ export const products: Product[] = [
     tags: ["cocktail", "ring", "evening"],
   },
   {
-    id: 25,
     slug: "ines-bridal-earrings",
     name: "Inès Bridal Chandeliers",
     category: "Bridal",
@@ -459,7 +437,6 @@ export const products: Product[] = [
     tags: ["bridal", "chandelier", "statement"],
   },
   {
-    id: 26,
     slug: "opaline-tarnish-free-hoops",
     name: "Opaline Tarnish-Free Hoops",
     category: "Anti-Tarnish",
@@ -477,7 +454,6 @@ export const products: Product[] = [
     tags: ["hoops", "anti-tarnish", "waterproof"],
   },
   {
-    id: 27,
     slug: "sonata-lariat-necklace",
     name: "Sonata Lariat Necklace",
     category: "Necklaces",
@@ -495,7 +471,6 @@ export const products: Product[] = [
     tags: ["lariat", "minimal", "evening"],
   },
   {
-    id: 28,
     slug: "gitanjali-bridal-haram",
     name: "Gitanjali Bridal Haram",
     category: "Bridal",
@@ -513,7 +488,6 @@ export const products: Product[] = [
     tags: ["bridal", "haram", "layered"],
   },
   {
-    id: 29,
     slug: "etta-box-chain-anklet",
     name: "Etta Box Chain Anklet",
     category: "Accessories",
@@ -530,7 +504,6 @@ export const products: Product[] = [
     tags: ["anklet", "summer", "anti-tarnish"],
   },
   {
-    id: 30,
     slug: "cassia-collar-choker",
     name: "Cassia Collar Choker",
     category: "Chokers",
@@ -549,7 +522,6 @@ export const products: Product[] = [
     tags: ["collar", "minimal", "sculptural"],
   },
   {
-    id: 31,
     slug: "nyra-eternity-band",
     name: "Nyra Eternity Band",
     category: "Diamond Look",
@@ -566,7 +538,6 @@ export const products: Product[] = [
     tags: ["band", "stacking", "gift"],
   },
   {
-    id: 32,
     slug: "veda-coin-pendant",
     name: "Veda Coin Pendant",
     category: "Anti-Tarnish",
@@ -584,7 +555,6 @@ export const products: Product[] = [
     tags: ["coin", "pendant", "heritage"],
   },
   {
-    id: 33,
     slug: "halcyon-two-tone-ring",
     name: "Halcyon Two-Tone Ring",
     category: "Accessories",
@@ -602,7 +572,6 @@ export const products: Product[] = [
     tags: ["ring", "two-tone", "modern"],
   },
   {
-    id: 34,
     slug: "banaras-polki-necklace",
     name: "Banaras Polki Necklace",
     category: "Necklaces",
@@ -620,7 +589,6 @@ export const products: Product[] = [
     tags: ["polki", "bib", "festive"],
   },
   {
-    id: 35,
     slug: "wren-threader-earrings",
     name: "Wren Threader Earrings",
     category: "Earrings",
@@ -637,7 +605,6 @@ export const products: Product[] = [
     tags: ["threader", "silver", "minimal"],
   },
   {
-    id: 36,
     slug: "surya-choker-haram-duo",
     name: "Surya Choker-Haram Duo",
     category: "Harams",
@@ -655,20 +622,3 @@ export const products: Product[] = [
     tags: ["duo", "layered", "wedding"],
   },
 ];
-
-export const getProduct = (slug: string): Product | undefined =>
-  products.find((p) => p.slug === slug);
-
-export const newArrivals = products.filter((p) => p.isNew);
-export const bestsellers = products.filter((p) => p.isBestseller);
-
-export const relatedProducts = (product: Product, count = 4): Product[] =>
-  products
-    .filter((p) => p.slug !== product.slug)
-    .sort((a, b) => {
-      const score = (p: Product) =>
-        (p.category === product.category ? 2 : 0) +
-        (p.collection === product.collection ? 1 : 0);
-      return score(b) - score(a);
-    })
-    .slice(0, count);

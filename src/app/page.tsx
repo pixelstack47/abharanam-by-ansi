@@ -8,8 +8,12 @@ import { SocialGallery } from "@/components/home/gallery";
 import { Testimonials } from "@/components/home/testimonials";
 import { Newsletter } from "@/components/home/newsletter";
 import { ProductCarousel } from "@/components/products/product-carousel";
-import { bestsellers, newArrivals } from "@/data/products";
+import { apiGet } from "@/lib/api";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/data/site";
+import type { Product } from "@/types";
+
+// Catalogue-backed page: always render with live data from the backend.
+export const dynamic = "force-dynamic";
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -45,7 +49,15 @@ const structuredData = {
   ],
 };
 
-export default function HomePage() {
+type ProductsResponse = { products: Product[]; total: number };
+
+export default async function HomePage() {
+  const [{ products: newArrivals }, { products: bestsellers }] =
+    await Promise.all([
+      apiGet<ProductsResponse>("/api/products?isNew=true&sort=newest&limit=8"),
+      apiGet<ProductsResponse>("/api/products?isBestseller=true&limit=10"),
+    ]);
+
   return (
     <>
       <script

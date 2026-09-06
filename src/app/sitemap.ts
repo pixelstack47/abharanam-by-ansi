@@ -1,11 +1,9 @@
 import type { MetadataRoute } from "next";
-import { products } from "@/data/products";
+import { apiGet } from "@/lib/api";
 import { SITE_URL } from "@/data/site";
+import type { Product } from "@/types";
 
-// Baked at build time for the static export.
-export const dynamic = "force-static";
-
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -30,12 +28,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const productRoutes: MetadataRoute.Sitemap = products.map((product) => ({
-    url: `${SITE_URL}/product/${product.slug}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.7,
-  }));
+  // Product slugs come from the backend; if it is unreachable (e.g. during
+  // `next build` with no API running) fall back to the static routes only
+  // rather than failing the build.
+  let productRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const { products } = await apiGet<{ products: Product[]; total: number }>(
+      "/api/products?limit=500",
+    );
+    productRoutes = products.map((product) => ({
+      url: `${SITE_URL}/product/${product.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }));
+  } catch {
+    // Backend down — ship the static routes.
+  }
 
   return [...staticRoutes, ...productRoutes];
 }

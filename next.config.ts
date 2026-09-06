@@ -1,20 +1,37 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  // Static export: `next build` emits a plain HTML/CSS/JS site into `dist/`,
-  // deployable to any static host (Netlify, GitHub Pages, S3) with no Node
-  // server. Note this rules out route handlers, cookies, server actions and
-  // redirects/rewrites — none of which this site uses.
-  output: "export",
-  distDir: "dist",
+// The standalone Express API (./backend, PORT 5000). Server components fetch
+// it directly via src/lib/api.ts; browser code reaches it through the
+// same-origin /api rewrite below.
+const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:5000";
 
-  // Emit `/shop/index.html` rather than `/shop.html`, so static hosts resolve
-  // clean URLs without per-host rewrite rules.
+const nextConfig: NextConfig = {
+  // Serve `/shop/` rather than `/shop` so URLs stay stable from the days of
+  // the static export — old links keep resolving without per-host rules.
   trailingSlash: true,
 
+  // Without this, the trailing-slash canonicalisation 308-redirects
+  // `/api/products` → `/api/products/` BEFORE the rewrite runs, breaking API
+  // calls (redirect replays are especially unwelcome on POSTs). Pages still
+  // render under their trailing-slash URLs; we just skip the hard redirect.
+  skipTrailingSlashRedirect: true,
+
+  // Proxy same-origin `/api/...` calls to the separate Express backend. The
+  // browser only ever sees relative URLs, so the httpOnly auth cookie flows
+  // through automatically and no CORS dance is needed client-side.
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${BACKEND_URL}/api/:path*`,
+      },
+    ];
+  },
+
   images: {
-    // A static export has no image optimization server, so we supply our own
-    // loader that leans on Unsplash's URL parameters. See ./image-loader.ts.
+    // Product imagery lives on Unsplash (and behind the backend's /api/images
+    // proxy), so we keep our own loader that leans on Unsplash's URL
+    // parameters instead of Next's optimizer. See ./image-loader.ts.
     loader: "custom",
     loaderFile: "./image-loader.ts",
     remotePatterns: [

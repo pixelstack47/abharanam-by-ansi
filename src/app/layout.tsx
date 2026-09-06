@@ -2,13 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
-import { BottomNav } from "@/components/layout/bottom-nav";
-import { CartDrawer } from "@/components/cart/cart-drawer";
-import { SearchOverlay } from "@/components/search/search-overlay";
-import { QuickView } from "@/components/products/quick-view";
-import { LuxeCursor } from "@/components/ui/cursor";
+import { Chrome } from "@/components/layout/chrome";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/data/site";
 
 const cormorant = Cormorant_Garamond({
@@ -66,22 +60,9 @@ export default function RootLayout({
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body>
         <StoreProvider>
-          <a
-            href="#main"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-5 focus:py-3 focus:text-xs focus:uppercase focus:tracking-luxe-sm focus:text-ivory"
-          >
-            Skip to content
-          </a>
-          <Navbar />
-          <main id="main" className="min-h-screen">
-            {children}
-          </main>
-          <Footer />
-          <BottomNav />
-          <CartDrawer />
-          <SearchOverlay />
-          <QuickView />
-          <LuxeCursor />
+          {/* Storefront chrome (navbar, footer, drawers) hides itself under
+              /admin — the admin area ships its own shell. */}
+          <Chrome>{children}</Chrome>
         </StoreProvider>
       </body>
     </html>

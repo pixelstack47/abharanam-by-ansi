@@ -10,8 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { CartItem } from "@/types";
-import { getProduct } from "@/data/products";
+import type { CartItem, Product, SessionUser } from "@/types";
 
 const CART_KEY = "abharanam:cart";
 const WISHLIST_KEY = "abharanam:wishlist";
@@ -19,6 +18,14 @@ const RECENT_KEY = "abharanam:recent-searches";
 
 interface StoreContextValue {
   hydrated: boolean;
+  /** Full catalog, fetched once from the API on mount. */
+  products: Product[];
+  productsLoaded: boolean;
+  getProduct: (slug: string) => Product | undefined;
+  user: SessionUser | null;
+  userLoaded: boolean;
+  refreshUser: () => Promise<void>;
+  logout: () => Promise<void>;
   cart: CartItem[];
   wishlist: string[];
   recentSearches: string[];
@@ -62,6 +69,10 @@ function writeJSON(key: string, value: unknown) {
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoaded, setProductsLoaded] = useState(false);
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [userLoaded, setUserLoaded] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
@@ -70,17 +81,97 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [quickViewSlug, setQuickViewSlug] = useState<string | null>(null);
 
+  const productMap = useMemo(
+    () => new Map(products.map((p) => [p.slug, p])),
+    [products],
+  );
+
+  const getProduct = useCallback(
+    (slug: string) => productMap.get(slug),
+    [productMap],
+  );
+
   useEffect(() => {
     /* One-time post-mount hydration from localStorage. Reading storage in
        useState initializers would run during the hydration render and
-       mismatch the server HTML, so it must happen in an effect. */
+       mismatch the server HTML, so it must happen in an effect. Entries are
+       loaded verbatim here — unknown slugs are pruned only once the catalog
+       has actually arrived (see the productsLoaded effect below). */
     /* eslint-disable react-hooks/set-state-in-effect */
-    setCart(readJSON<CartItem[]>(CART_KEY, []).filter((i) => getProduct(i.slug)));
-    setWishlist(readJSON<string[]>(WISHLIST_KEY, []).filter((s) => getProduct(s)));
+    setCart(readJSON<CartItem[]>(CART_KEY, []));
+    setWishlist(readJSON<string[]>(WISHLIST_KEY, []));
     setRecentSearches(readJSON<string[]>(RECENT_KEY, []));
     setHydrated(true);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
+
+  // Fetch the catalog once. productsLoaded only flips on success so a flaky
+  // backend can never cause the prune below to wipe a saved cart.
+  useEffect(() => {
+    let cancelled = false;
+    const load = async (attempt = 0) => {
+      try {
+        const res = await fetch("/api/products?limit=500");
+        if (!res.ok) throw new Error(`Catalog fetch failed (${res.status})`);
+        const data = (await res.json()) as { products: Product[] };
+        if (cancelled) return;
+        setProducts(data.products ?? []);
+        setProductsLoaded(true);
+      } catch {
+        if (cancelled || attempt >= 2) return;
+        setTimeout(() => {
+          if (!cancelled) load(attempt + 1);
+        }, 1500);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      const data = res.ok
+        ? ((await res.json()) as { user: SessionUser | null })
+        : { user: null };
+      setUser(data.user ?? null);
+    } catch {
+      setUser(null);
+    } finally {
+      setUserLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
+
+  const logout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      /* clearing local state is what matters — cookie expiry catches up */
+    }
+    setUser(null);
+  }, []);
+
+  // Prune cart/wishlist entries whose slug no longer exists in the catalog —
+  // only after both storage hydration AND a successful catalog fetch.
+  useEffect(() => {
+    if (!hydrated || !productsLoaded) return;
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setCart((prev) => {
+      const next = prev.filter((i) => productMap.has(i.slug));
+      return next.length === prev.length ? prev : next;
+    });
+    setWishlist((prev) => {
+      const next = prev.filter((s) => productMap.has(s));
+      return next.length === prev.length ? prev : next;
+    });
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [hydrated, productsLoaded, productMap]);
 
   const persisted = useRef(false);
   useEffect(() => {
@@ -166,17 +257,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let count = 0;
     let subtotal = 0;
     for (const item of cart) {
-      const product = getProduct(item.slug);
+      const product = productMap.get(item.slug);
       if (!product) continue;
       count += item.quantity;
       subtotal += product.price * item.quantity;
     }
     return { cartCount: count, cartSubtotal: subtotal };
-  }, [cart]);
+  }, [cart, productMap]);
 
   const value = useMemo<StoreContextValue>(
     () => ({
       hydrated,
+      products,
+      productsLoaded,
+      getProduct,
+      user,
+      userLoaded,
+      refreshUser,
+      logout,
       cart,
       wishlist,
       recentSearches,
@@ -200,6 +298,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }),
     [
       hydrated,
+      products,
+      productsLoaded,
+      getProduct,
+      user,
+      userLoaded,
+      refreshUser,
+      logout,
       cart,
       wishlist,
       recentSearches,

@@ -1,22 +1,31 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProduct, products, relatedProducts } from "@/data/products";
+import { apiGetOrNull } from "@/lib/api";
 import { SITE_NAME } from "@/data/site";
+import type { Product } from "@/types";
 import { ProductDetail } from "@/components/products/product-detail";
 import { ProductCarousel } from "@/components/products/product-carousel";
+
+// Catalogue-backed page: always render with live data from the backend.
+export const dynamic = "force-dynamic";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
+type ProductResponse = { product: Product; related: Product[] };
+
+function fetchProduct(slug: string) {
+  return apiGetOrNull<ProductResponse>(
+    `/api/products/${encodeURIComponent(slug)}`,
+  );
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProduct(slug);
-  if (!product) return { title: "Product Not Found" };
+  const data = await fetchProduct(slug);
+  if (!data) return { title: "Product Not Found" };
+  const { product } = data;
   return {
     title: product.name,
     description: `${product.shortDescription} ${product.material}, from the ${product.collection} collection. ₹${product.price.toLocaleString("en-IN")}.`,
@@ -31,8 +40,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getProduct(slug);
-  if (!product) notFound();
+  const data = await fetchProduct(slug);
+  if (!data) notFound();
+  const { product, related } = data;
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -71,7 +81,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             You may also <em className="italic">love</em>
           </>
         }
-        products={relatedProducts(product, 8)}
+        products={related}
         href={`/shop?category=${encodeURIComponent(product.category)}`}
         hrefLabel={`All ${product.category}`}
       />

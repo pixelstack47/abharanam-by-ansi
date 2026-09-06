@@ -37,7 +37,7 @@ export function Hero() {
             src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?q=80&w=2200&auto=format&fit=crop"
             alt="Model wearing Abharanam fine jewellery"
             fill
-            priority
+            preload
             sizes="100vw"
             className="object-cover object-center"
           />

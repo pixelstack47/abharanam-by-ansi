@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
-import { products } from "@/data/products";
 import { CATEGORIES, COLLECTIONS, MATERIALS, PRICE_RANGES } from "@/data/site";
 import type { Product, SortOption } from "@/types";
 import { useFocusTrap } from "@/lib/use-focus-trap";
@@ -24,7 +23,7 @@ function toggleValue(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
-export function ShopClient() {
+export function ShopClient({ products }: { products: Product[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -101,7 +100,7 @@ export function ShopClient() {
         );
     }
     return list;
-  }, [selected]);
+  }, [products, selected]);
 
   const activeFilterCount =
     selected.categories.length +

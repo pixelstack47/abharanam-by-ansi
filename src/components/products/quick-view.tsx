@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, X } from "lucide-react";
-import { getProduct } from "@/data/products";
 import { useStore } from "@/lib/store";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { cn, discountPercent, formatINR } from "@/lib/utils";
@@ -12,8 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Rating } from "@/components/ui/rating";
 
 export function QuickView() {
-  const { quickViewSlug, setQuickViewSlug, addToCart, setCartOpen, toggleWishlist, isWishlisted } =
-    useStore();
+  const {
+    quickViewSlug,
+    setQuickViewSlug,
+    addToCart,
+    setCartOpen,
+    toggleWishlist,
+    isWishlisted,
+    getProduct,
+  } = useStore();
   const product = quickViewSlug ? getProduct(quickViewSlug) : undefined;
   const trapRef = useFocusTrap<HTMLDivElement>(product !== undefined);
 

@@ -8,8 +8,24 @@ import { useStore } from "@/lib/store";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 
 export function MobileMenu() {
-  const { menuOpen, setMenuOpen } = useStore();
+  const { menuOpen, setMenuOpen, user, userLoaded } = useStore();
   const trapRef = useFocusTrap<HTMLDivElement>(menuOpen);
+
+  /* Account entry mirrors the navbar icon: signed-in → account (admins →
+     dashboard), signed-out → sign in. The menu only mounts after a click so
+     userLoaded is almost always settled by now; the neutral fallback keeps
+     the rare in-between state sensible. */
+  const accountEntry =
+    userLoaded && user
+      ? {
+          label: user.role === "admin" ? "Dashboard" : "My Account",
+          href: user.role === "admin" ? "/admin" : "/account",
+        }
+      : userLoaded
+        ? { label: "Sign In", href: "/login" }
+        : { label: "Account", href: "/account" };
+
+  const links = [...NAV_LINKS, accountEntry];
 
   return (
     <AnimatePresence>
@@ -41,7 +57,7 @@ export function MobileMenu() {
 
           <nav className="flex flex-1 flex-col justify-center px-8" aria-label="Mobile">
             <ul className="space-y-2">
-              {NAV_LINKS.map((link, i) => (
+              {links.map((link, i) => (
                 <motion.li
                   key={link.label}
                   initial={{ opacity: 0, y: 24 }}

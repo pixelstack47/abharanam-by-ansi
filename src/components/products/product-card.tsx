@@ -35,12 +35,12 @@ export function ProductCard({
             src={product.images[0]}
             alt={product.name}
             fill
-            priority={priority}
+            preload={priority}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover transition-all duration-700 ease-out group-hover:scale-[1.04] lg:group-hover:opacity-0"
           />
           <Image
-            src={product.images[1]}
+            src={product.images[1] ?? product.images[0]}
             alt=""
             aria-hidden
             fill

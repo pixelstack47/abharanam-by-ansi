@@ -5,14 +5,14 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Clock, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { products } from "@/data/products";
 import { CATEGORIES, POPULAR_SEARCHES } from "@/data/site";
 import { useStore } from "@/lib/store";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { formatINR } from "@/lib/utils";
 
 export function SearchOverlay() {
-  const { searchOpen, setSearchOpen, recentSearches, addRecentSearch } = useStore();
+  const { searchOpen, setSearchOpen, recentSearches, addRecentSearch, products } =
+    useStore();
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const trapRef = useFocusTrap<HTMLDivElement>(searchOpen);
@@ -50,7 +50,7 @@ export function SearchOverlay() {
           .includes(q),
       )
       .slice(0, 6);
-  }, [query]);
+  }, [query, products]);
 
   const commitSearch = (term: string) => {
     addRecentSearch(term);

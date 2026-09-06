@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ShopClient } from "@/components/shop/shop-client";
+import { apiGet } from "@/lib/api";
+import type { Product } from "@/types";
+
+// Catalogue-backed page: always render with live data from the backend.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Shop All Jewellery",
@@ -9,7 +14,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "/shop" },
 };
 
-export default function ShopPage() {
+export default async function ShopPage() {
+  const { products } = await apiGet<{ products: Product[]; total: number }>(
+    "/api/products?limit=500&sort=featured",
+  );
+
   return (
     <div className="pt-24 lg:pt-32">
       <header className="mx-auto max-w-[1440px] px-4 pb-8 sm:px-6 lg:px-10 lg:pb-12">
@@ -25,7 +34,7 @@ export default function ShopPage() {
         </p>
       </header>
       <Suspense>
-        <ShopClient />
+        <ShopClient products={products} />
       </Suspense>
     </div>
   );

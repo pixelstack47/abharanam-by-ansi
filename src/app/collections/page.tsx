@@ -3,9 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { COLLECTIONS } from "@/data/site";
-import { products } from "@/data/products";
+import { apiGet } from "@/lib/api";
+import type { Product } from "@/types";
 import { Reveal, ImageReveal } from "@/components/ui/reveal";
 import { cn } from "@/lib/utils";
+
+// Catalogue-backed page: always render with live counts from the backend.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Collections",
@@ -14,7 +18,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "/collections" },
 };
 
-export default function CollectionsPage() {
+export default async function CollectionsPage() {
+  const { products } = await apiGet<{ products: Product[]; total: number }>(
+    "/api/products?limit=500",
+  );
+
   return (
     <div className="pt-24 lg:pt-32">
       <header className="mx-auto max-w-[1440px] px-4 pb-14 sm:px-6 lg:px-10 lg:pb-20">

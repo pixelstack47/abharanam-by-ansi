@@ -13,6 +13,7 @@ import {
   Sparkles,
   Truck,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Product } from "@/types";
 import { PRODUCT_REVIEWS } from "@/data/site";
@@ -42,6 +43,7 @@ const DETAILS_SECTIONS = (product: Product) => [
 ];
 
 export function ProductDetail({ product }: { product: Product }) {
+  const router = useRouter();
   const { addToCart, setCartOpen, toggleWishlist, isWishlisted, hydrated } = useStore();
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantityLocal] = useState(1);
@@ -53,6 +55,11 @@ export function ProductDetail({ product }: { product: Product }) {
   const addToBag = () => {
     addToCart(product.slug, quantity);
     setCartOpen(true);
+  };
+
+  const buyNow = () => {
+    addToCart(product.slug, quantity);
+    router.push("/checkout");
   };
 
   return (
@@ -90,7 +97,7 @@ export function ProductDetail({ product }: { product: Product }) {
                   src={product.images[activeImage]}
                   alt={`${product.name} — view ${activeImage + 1}`}
                   fill
-                  priority
+                  preload
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
                 />
@@ -223,7 +230,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 size="lg"
                 className="flex-1"
                 disabled={!product.inStock}
-                onClick={addToBag}
+                onClick={buyNow}
               >
                 Buy Now
               </Button>

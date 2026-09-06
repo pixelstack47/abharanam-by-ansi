@@ -3,16 +3,17 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
-import { products } from "@/data/products";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/product-card";
 
 export function WishlistClient() {
-  const { wishlist, hydrated } = useStore();
+  const { wishlist, hydrated, products, productsLoaded } = useStore();
   const items = products.filter((p) => wishlist.includes(p.slug));
 
-  if (!hydrated) {
+  // Wait for both localStorage hydration and the catalog — rendering the
+  // empty state before either would flash "no saved pieces" at real savers.
+  if (!hydrated || !productsLoaded) {
     return (
       <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
         {Array.from({ length: 4 }, (_, i) => (

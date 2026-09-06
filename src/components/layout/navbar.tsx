@@ -12,8 +12,16 @@ import { MobileMenu } from "./mobile-menu";
 export function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const { cartCount, wishlist, hydrated, setCartOpen, setSearchOpen, setMenuOpen } =
-    useStore();
+  const {
+    cartCount,
+    wishlist,
+    hydrated,
+    user,
+    userLoaded,
+    setCartOpen,
+    setSearchOpen,
+    setMenuOpen,
+  } = useStore();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -32,6 +40,25 @@ export function Navbar() {
 
   const badge =
     "absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-gold-dark text-[9px] font-semibold text-ivory";
+
+  /* Account icon reflects auth state. Until the session check resolves
+     (userLoaded — same gating idea as the `hydrated` cart/wishlist badges)
+     we render the neutral /account link so server and first client render
+     agree; the account page itself bounces signed-out visitors to /login. */
+  const accountHref = !userLoaded
+    ? "/account"
+    : user
+      ? user.role === "admin"
+        ? "/admin"
+        : "/account"
+      : "/login";
+  const accountLabel = !userLoaded
+    ? "Account"
+    : user
+      ? user.role === "admin"
+        ? "Admin dashboard"
+        : "My account"
+      : "Sign in";
 
   return (
     <>
@@ -118,11 +145,21 @@ export function Navbar() {
               <Search size={19} strokeWidth={1.5} />
             </button>
             <Link
-              href="/account"
+              href={accountHref}
               className={cn(iconBtn, "hidden sm:inline-flex")}
-              aria-label="Account"
+              aria-label={accountLabel}
+              title={accountLabel}
             >
               <User size={19} strokeWidth={1.5} />
+              {userLoaded && user && (
+                <span
+                  className={cn(
+                    "absolute right-0.5 top-0.5 size-2 rounded-full bg-gold-dark ring-2",
+                    transparent ? "ring-ink/40" : "ring-ivory",
+                  )}
+                  aria-hidden
+                />
+              )}
             </Link>
             <Link href="/wishlist" className={iconBtn} aria-label="Wishlist">
               <Heart size={19} strokeWidth={1.5} />

@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
-import { getProduct } from "@/data/products";
 import { FREE_SHIPPING_THRESHOLD } from "@/data/site";
 import { useStore } from "@/lib/store";
 import { useFocusTrap } from "@/lib/use-focus-trap";
@@ -12,8 +11,15 @@ import { formatINR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export function CartDrawer() {
-  const { cart, cartOpen, cartSubtotal, setCartOpen, setQuantity, removeFromCart } =
-    useStore();
+  const {
+    cart,
+    cartOpen,
+    cartSubtotal,
+    setCartOpen,
+    setQuantity,
+    removeFromCart,
+    getProduct,
+  } = useStore();
   const trapRef = useFocusTrap<HTMLElement>(cartOpen);
 
   const remaining = FREE_SHIPPING_THRESHOLD - cartSubtotal;
@@ -181,9 +187,15 @@ export function CartDrawer() {
                   <p className="mt-1 text-xs text-stone">
                     Taxes included. Shipping calculated at checkout.
                   </p>
-                  <Button className="mt-4 w-full" size="lg">
-                    Proceed to Checkout
-                  </Button>
+                  <Link
+                    href="/checkout"
+                    onClick={() => setCartOpen(false)}
+                    className="mt-4 block"
+                  >
+                    <Button className="w-full" size="lg">
+                      Proceed to Checkout
+                    </Button>
+                  </Link>
                   <button
                     onClick={() => setCartOpen(false)}
                     className="mt-3 w-full text-center text-xs uppercase tracking-luxe-sm text-stone underline-offset-4 hover:text-ink hover:underline"

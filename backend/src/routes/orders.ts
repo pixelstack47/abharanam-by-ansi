@@ -9,6 +9,7 @@ import { config } from "../config.ts";
 import { Product } from "../models/Product.ts";
 import { Order } from "../models/Order.ts";
 import { User } from "../models/User.ts";
+import { markReviewsVerifiedForOrder } from "../models/Review.ts";
 import { nextOrderNumber } from "../models/Counter.ts";
 import { requireUser, requireAdmin } from "../lib/auth.ts";
 import type { AuthedRequest } from "../lib/auth.ts";
@@ -224,6 +225,18 @@ router.post(
         }
       } catch (err) {
         console.error("[orders] failed to save profile address:", err);
+      }
+
+      // This purchase may verify reviews the caller wrote BEFORE buying —
+      // `verified` is a stored snapshot, so promote them now. Never lets a
+      // backfill hiccup fail an order that already saved.
+      try {
+        await markReviewsVerifiedForOrder(
+          req.user.id,
+          items.map((item) => item.slug),
+        );
+      } catch (err) {
+        console.error("[orders] failed to backfill verified reviews:", err);
       }
     }
 

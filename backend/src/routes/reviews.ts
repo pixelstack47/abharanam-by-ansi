@@ -14,8 +14,11 @@
 import { Router } from "express";
 import mongoose from "mongoose";
 import { Product } from "../models/Product.ts";
-import { Order } from "../models/Order.ts";
-import { Review, recomputeProductRating } from "../models/Review.ts";
+import {
+  Review,
+  isVerifiedBuyer,
+  recomputeProductRating,
+} from "../models/Review.ts";
 import { requireUser } from "../lib/auth.ts";
 import type { AuthedRequest } from "../lib/auth.ts";
 import { toProduct, toReview } from "../serializers.ts";
@@ -117,10 +120,7 @@ productReviewsRouter.put(
     const product = await Product.findOne({ slug: req.params.slug });
     if (!product) return res.status(404).json({ error: "Product not found." });
 
-    // Verified purchase: the caller has any order containing this product.
-    const verified = Boolean(
-      await Order.exists({ userId: user.id, "items.slug": product.slug }),
-    );
+    const verified = await isVerifiedBuyer(user.id, product.slug);
 
     const update = {
       $set: {

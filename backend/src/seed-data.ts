@@ -1,4 +1,9 @@
-import type { Category, CollectionName, Product } from "./types.ts";
+import type {
+  Category,
+  CollectionName,
+  OrderStatus,
+  Product,
+} from "./types.ts";
 
 /** A catalogue product before the database assigns its id. */
 export type SeedProduct = Omit<Product, "id">;
@@ -684,6 +689,197 @@ export const seedCategories: SeedCategory[] = [
     name: "Accessories",
     image: img("1598560917505-59a3ad559071"),
     blurb: "Rings, anklets and finishing touches",
+  },
+];
+
+/**
+ * Demo customer before the database hashes its password and assigns an id.
+ * Seeded with $setOnInsert only, so admin edits (blocking, role changes)
+ * are never clobbered by a re-run.
+ */
+export type SeedUser = { name: string; email: string; password: string; phone?: string };
+
+export const seedUsers: SeedUser[] = [
+  { name: "Ananya Rao", email: "ananya.rao@example.com", password: "Password123!", phone: "9876543210" },
+  { name: "Kabir Mehta", email: "kabir.mehta@example.com", password: "Password123!", phone: "9876501234" },
+  { name: "Meera Nair", email: "meera.nair@example.com", password: "Password123!", phone: "9845098450" },
+  { name: "Rohan Iyer", email: "rohan.iyer@example.com", password: "Password123!", phone: "9900112233" },
+  { name: "Divya Krishnan", email: "divya.krishnan@example.com", password: "Password123!", phone: "9765432109" },
+];
+
+/**
+ * Demo order keyed by customer email (resolved to a user id at seed time).
+ * Prices, GST and shipping are NOT stored here — the seeder recomputes them
+ * from the catalogue exactly as POST /api/orders does.
+ *
+ * These are what make the "verified purchase" badge real: a demo review is
+ * verified iff its reviewer has an order here containing that product.
+ */
+export type SeedOrder = {
+  userEmail: string;
+  items: { slug: string; quantity: number }[];
+  status: OrderStatus;
+  address: {
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+};
+
+export const seedOrders: SeedOrder[] = [
+  {
+    userEmail: "ananya.rao@example.com",
+    items: [
+      { slug: "aurelia-pendant-necklace", quantity: 1 },
+      { slug: "wren-threader-earrings", quantity: 1 },
+    ],
+    status: "delivered",
+    address: {
+      line1: "402, Brigade Palm Court",
+      line2: "Kodihalli",
+      city: "Bengaluru",
+      state: "Karnataka",
+      pincode: "560008",
+    },
+  },
+  {
+    userEmail: "kabir.mehta@example.com",
+    items: [{ slug: "seraphine-gold-choker", quantity: 1 }],
+    status: "delivered",
+    address: {
+      line1: "12B, Sea Breeze Apartments",
+      line2: "Bandra West",
+      city: "Mumbai",
+      state: "Maharashtra",
+      pincode: "400050",
+    },
+  },
+  {
+    userEmail: "meera.nair@example.com",
+    items: [{ slug: "eclat-bridal-set", quantity: 1 }],
+    status: "delivered",
+    address: {
+      line1: "Vrindavan, Panampilly Nagar",
+      city: "Kochi",
+      state: "Kerala",
+      pincode: "682036",
+    },
+  },
+  {
+    userEmail: "rohan.iyer@example.com",
+    items: [{ slug: "noor-anti-tarnish-chain", quantity: 2 }],
+    status: "shipped",
+    address: {
+      line1: "7, Kasturba Nagar",
+      line2: "Adyar",
+      city: "Chennai",
+      state: "Tamil Nadu",
+      pincode: "600020",
+    },
+  },
+  {
+    userEmail: "divya.krishnan@example.com",
+    items: [
+      { slug: "rhea-emerald-choker", quantity: 1 },
+      { slug: "aisha-jhumka-earrings", quantity: 1 },
+    ],
+    status: "delivered",
+    address: {
+      line1: "301, Cyber Heights",
+      line2: "Jubilee Hills",
+      city: "Hyderabad",
+      state: "Telangana",
+      pincode: "500033",
+    },
+  },
+];
+
+/**
+ * Demo review keyed by product slug + reviewer email (resolved to ids at
+ * seed time). Seeded with $setOnInsert only — matches the unique
+ * (productId, userId) index, so a re-run never overwrites an edited review.
+ *
+ * `verified` is deliberately absent: it is DERIVED from seedOrders by the
+ * seeder (via isVerifiedBuyer), never hand-written, so the badge always
+ * reflects a real purchase.
+ */
+export type SeedReview = {
+  productSlug: string;
+  userEmail: string;
+  rating: number;
+  title?: string;
+  body: string;
+};
+
+export const seedReviews: SeedReview[] = [
+  {
+    productSlug: "aurelia-pendant-necklace",
+    userEmail: "ananya.rao@example.com",
+    rating: 5,
+    title: "Absolutely stunning",
+    body: "The chain is so fine it almost disappears, and the pendant catches light beautifully. Wear it to work and it still looks right out to dinner.",
+  },
+  {
+    productSlug: "luna-pearl-drop-earrings",
+    userEmail: "ananya.rao@example.com",
+    rating: 4,
+    title: "Lovely everyday piece",
+    body: "Lightweight and comfortable for all-day wear. The pearls are a touch smaller than I expected but the finish is lovely.",
+  },
+  {
+    productSlug: "seraphine-gold-choker",
+    userEmail: "kabir.mehta@example.com",
+    rating: 5,
+    title: "Bought for my wife, she loves it",
+    body: "The craftsmanship is excellent — feels far more expensive than the price. Arrived well packaged too.",
+  },
+  {
+    productSlug: "vera-tennis-bracelet",
+    userEmail: "kabir.mehta@example.com",
+    rating: 4,
+    body: "Sits nicely on the wrist and the stones sparkle under light. Clasp took a moment to get used to.",
+  },
+  {
+    productSlug: "eclat-bridal-set",
+    userEmail: "meera.nair@example.com",
+    rating: 5,
+    title: "Perfect for my wedding",
+    body: "Wore this for my muhurtham and got so many compliments. Every piece in the set coordinates beautifully.",
+  },
+  {
+    productSlug: "priya-temple-necklace",
+    userEmail: "meera.nair@example.com",
+    rating: 5,
+    body: "The temple motif detailing is intricate and the gold plating has held up well after months of wear.",
+  },
+  {
+    productSlug: "noor-anti-tarnish-chain",
+    userEmail: "rohan.iyer@example.com",
+    rating: 4,
+    title: "Great quality, genuinely tarnish-free",
+    body: "I've worn this in the shower and at the gym for weeks — still looks new. Exactly what was promised.",
+  },
+  {
+    productSlug: "margot-sculpted-hoops",
+    userEmail: "rohan.iyer@example.com",
+    rating: 3,
+    title: "Good but a little heavy",
+    body: "They look great but are slightly heavier than I'd like for all-day wear. Still, the design is striking.",
+  },
+  {
+    productSlug: "zaria-chandbali-earrings",
+    userEmail: "divya.krishnan@example.com",
+    rating: 5,
+    body: "Exactly like the photos — festive without being over the top. Got so many compliments at a wedding.",
+  },
+  {
+    productSlug: "rhea-emerald-choker",
+    userEmail: "divya.krishnan@example.com",
+    rating: 5,
+    title: "Show-stopper",
+    body: "This is the most complimented piece in my collection. The emerald-look stones are vivid and well set.",
   },
 ];
 

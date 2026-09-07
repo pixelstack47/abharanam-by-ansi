@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
+import { toast } from "@/components/admin/toaster";
 import { useStore } from "@/lib/store";
 import type { SessionUser } from "@/types";
 
@@ -64,6 +65,7 @@ function LoginForm() {
         return;
       }
       await refreshUser();
+      toast.success("Signed in.");
       router.push(destinationFor(data.user, next));
     } catch {
       setError("Unable to reach the server. Please try again.");

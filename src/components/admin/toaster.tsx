@@ -1,15 +1,18 @@
 "use client";
 
 /**
- * Admin toast notifications.
+ * Site-wide toast notifications (storefront + admin).
  *
  * State lives in a module-level store outside the React tree, so a toast
  * fired right before router.push() survives the navigation — <Toaster />
- * (mounted once in the admin layout) simply re-reads the same store on the
- * next route. Fire from any admin client component:
+ * (mounted once in the root layout) simply re-reads the same store on the
+ * next route. Fire from any client component:
  *
  *   toast.success("Product created.");
  *   toast.error("Something went wrong.");
+ *
+ * Lives under components/admin/ for historical reasons (it started as an
+ * admin-only affordance); the component itself has no admin dependency.
  */
 
 import { useEffect, useState, useSyncExternalStore } from "react";
@@ -87,9 +90,9 @@ function ToastItem({ id, variant, message }: Toast) {
   return (
     <motion.li
       layout
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 8 }}
+      exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -126,7 +129,7 @@ export function Toaster() {
     <ul
       aria-live="polite"
       aria-label="Notifications"
-      className="pointer-events-none fixed inset-x-4 bottom-4 z-[60] flex flex-col gap-2 sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-80 print:hidden"
+      className="pointer-events-none fixed inset-x-4 top-4 z-[60] flex flex-col gap-2 sm:inset-x-auto sm:right-6 sm:top-6 sm:w-80 print:hidden"
     >
       <AnimatePresence initial={false}>
         {items.map((t) => (

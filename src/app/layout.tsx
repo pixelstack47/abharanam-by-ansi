@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
 import { Chrome } from "@/components/layout/chrome";
+import { Toaster } from "@/components/admin/toaster";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/data/site";
 
 const cormorant = Cormorant_Garamond({
@@ -64,6 +65,10 @@ export default function RootLayout({
               /admin — the admin area ships its own shell. */}
           <Chrome>{children}</Chrome>
         </StoreProvider>
+        {/* Mounted once, site-wide, so a toast fired right before a
+            navigation (e.g. login redirecting off /login) still has
+            somewhere to render on the next page. */}
+        <Toaster />
       </body>
     </html>
   );
